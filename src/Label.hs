@@ -80,7 +80,7 @@ labelStoreCSE' assertion nextIndex λ = let i = nextIndex in case assertion of
       where (i', p1', λ') = labelCSE' p1 i λ
     EQA p1 p2 -> case M.lookup p1 λ of
       Just i1 -> case M.lookup p2 λ of
-        Just i2 -> (i, LEQA (PTR τ1 i1) (LWIRE τ2 i2), λ) -- both are labeled: can't relabel them
+        Just i2 -> (i, LEQA (PTR τ1 i1) (PTR τ2 i2), λ) -- both are labeled: can't relabel them
           where Just τ1 = inferType p1; Just τ2 = inferType p2
         Nothing -> (i', LEQA (PTR τ1 i1) p2', λ')
           where (i', p2', λ') = labelCSE' p2 i λ
