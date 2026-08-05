@@ -20,6 +20,7 @@ import Label
 import MapLemmas
 import Language.Haskell.Liquid.ProofCombinators
 
+#if LiquidOn
 
 {-@ reflect elemsSet @-}
 elemsSet :: (Ord v) => M.Map k v -> S.Set v
@@ -32,6 +33,16 @@ elemsSet (M.MBin _ v m) = S.singleton v `S.union` elemsSet m
 elementLemma2 :: Ord k => k -> v -> M.Map k v -> Proof
 elementLemma2 k v (M.MBin k' v' m') =
   if k == k' then trivial else elementLemma2 k v m'
+
+#else
+
+elemsSet :: (Ord v) => M.Map k v -> S.Set v
+elemsSet m = S.fromList (M.elems m)
+
+elementLemma2 :: Ord k => k -> v -> M.Map k v -> Proof
+elementLemma2 k v m = trivial
+
+#endif
 
 
 {-@ labelWFPtr :: e:TypedDSL p -> m0:Nat
