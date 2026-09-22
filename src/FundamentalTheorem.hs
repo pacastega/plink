@@ -1,5 +1,4 @@
 {-# LANGUAGE CPP #-}
-{-@ LIQUID "--ple" @-}
 {-@ LIQUID "--reflection" @-}
 module FundamentalTheorem where
 
@@ -25,7 +24,9 @@ import qualified MapFunctions as M
 
 import MapLemmas
 import LabelingProof.LabelingLemmas
+import WitnessGenProof.WitnessGenLemmas (wgKeysSet, wgClosed, wgLemma)
 import LabelingProof.AgreeLemma
+import WitnessGenProof.SemanticsLemmas
 import WitnessGenProof.UniquenessLemmas
 import WitnessGenProof.Soundness
 import WitnessGenProof.Completeness
@@ -37,33 +38,44 @@ import Language.Haskell.Liquid.ProofCombinators
 {-@ fundamentalThmE1 :: m0:Nat -> e:TypedDSL p
                      -> ρ:NameValuation p
 
-                     -> m:{Nat | m0 <= m}
-                     -> e':LDSL p (Btwn 0 m)
-                     -> λ:{LabelEnv p (Btwn 0 m) | label' e m0 M.MTip = (m, e', λ)}
+                     -> m1:{Nat | m0 <= m1} -> m:{Nat | m1 <= m}
+                     -> λ0:LabelEnv p (Btwn 0 m0)
+                     -> σ0:WireValuation p m0
+                     -> Agree λ0 ρ σ0
+
+                     -> e':{LDSL p (Btwn 0 m1) | freshE e' σ0}
+                     -> λ:{LabelEnv p (Btwn 0 m1) | label' e m0 λ0 = (m1, e', λ)}
 
                      -> v:{DSLValue p | eval e ρ = Just v}
 
-                     -> (σ::{σ:WireValuation p m | coherentE m e' σ
-                                                && evalWire m e' σ = v},
+                     -> (σ::{σ:WireValuation p m1 | Just σ = witnessGenE' m ρ σ0 e'
+                                                && closedExpr m σ e'
+                                                && coherentE m e' σ
+                                                && evalWire m e' σ = v
+                                                && M.keysSet σ =
+                                            S.union (M.keysSet σ0) (wiresE e')},
                          x:{String | M.member x λ} ->
                             { v:() | M.lookup x ρ = M.lookup (M.lookup' x λ) σ }) @-}
 fundamentalThmE1 :: (Fractional p, Ord p) => Int -> DSL p
                  -> NameValuation p
 
-                 -> Int -> LDSL p Int -> LabelEnv p Int
+                 -> Int -> Int -> LabelEnv p Int -> WireValuation p
+                 -> (String -> Proof)
+                 -> LDSL p Int -> LabelEnv p Int
                  -> DSLValue p
 
                  -> (WireValuation p, String -> Proof)
-fundamentalThmE1 m0 e ρ m e' λ v =
-  ( σ ? sound, agreeLemma m0 m e ρ λ0 σ0 (\_ -> ()) λ e' σ )
+fundamentalThmE1 m0 e ρ m1 m λ0 σ0 π e' λ v =
+  (σ ? σ_closed ? sound ? σ_eq_wg ? σ_eval,
+   agreeLemma m0 m1 e ρ λ0 σ0 π λ e' σ)
   where
-    λ0 = M.MTip
-    σ0 = M.MTip
-
-    wf = labelWF e m0 λ0 m e' λ
-    wt = labelTyped e m0 λ0 m e' λ
-    sound = wf ?? wt ?? wgSoundE m ρ σ0 e' σ
-    σ = wf ?? wgCompleteE m0 e ρ v λ0 σ0 (\_ -> ()) m e' λ
+    wf = labelWF e m0 λ0 m1 e' λ
+    wt = labelTyped e m0 λ0 m1 e' λ
+    sound = wf ?? wt ?? wgLemma m1 m ρ σ0 e' ?? wgSoundE m ρ σ0 e' σ
+    σ = wf ?? wgCompleteE m0 e ρ v λ0 σ0 π m1 e' λ
+    σ_eq_wg = wgKeysSet m1 ρ σ0 e' σ
+    σ_closed = wgClosed m1 ρ σ0 e' σ
+    σ_eval = evalWireLemma m1 m e' σ
 
 
 {-@ fundamentalThmE2 :: m0:Nat -> e:TypedDSL p
