@@ -24,6 +24,7 @@ data DSLValue p = VF p | VNil | VCons (DSLValue p) (DSLValue p)
 instance Show p => Show (DSLValue p) where
   show (VF x) = show x
   show v = "⟨" ++ show_ v ++ "⟩" where
+    show_ (VF x)         = show x
     show_ (VNil)         = " "
     show_ (VCons x VNil) = show x
     show_ (VCons x xs)   = show x ++ "," ++ show_ xs
