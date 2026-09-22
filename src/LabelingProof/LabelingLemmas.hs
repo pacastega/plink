@@ -133,6 +133,38 @@ labelWF e m0 λ m e' λ' = case e of
           usedTs = wiresE es'
 
 
+{-@ labelAWF :: a:Assertion p -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
+             -> m:{Int | m >= m0} -> a':LAss p Int
+             -> λ':{LabelEnv p Int | labelAssertion a m0 λ = (m, a', λ')}
+             -> { wfA a' } @-}
+labelAWF :: (Num p, Ord p) => Assertion p -> Int -> LabelEnv p Int
+         -> Int -> LAss p Int -> LabelEnv p Int
+         -> Proof
+labelAWF a m0 λ m a' λ' = case a of
+  NZERO e1 -> wtE ?? ltLemma m0 m1 (wiresE e1') m1 ?? labelWF e1 m0 λ m1 e1' λ1
+    where (m1, e1', λ1) = label' e1 m0 λ
+
+          {-@ wtE :: { wellTyped e1 } @-}
+          wtE = case inferType e1 of Just _ -> trivial
+
+  BOOLEAN e1 -> wtE ?? labelWF e1 m0 λ m1 e1' λ1
+    where (m1, e1', λ1) = label' e1 m0 λ
+
+          {-@ wtE :: { wellTyped e1 } @-}
+          wtE = case inferType e1 of Just _ -> trivial
+  EQA e1 e2 -> wtE1 ?? wtE2 ?? disjLemma m0 m1 m2 (wiresE e1') (wiresE e2')
+            ?? labelWF e1 m0 λ  m1 e1' λ1
+            ?? labelWF e2 m1 λ1 m2 e2' λ2
+    where (m1, e1', λ1) = label' e1 m0 λ
+          (m2, e2', λ2) = label' e2 m1 λ1
+
+          {-@ wtE1 :: { wellTyped e1 } @-}
+          wtE1 = case inferType e1 of Just _ -> trivial
+
+          {-@ wtE2 :: { wellTyped e2 } @-}
+          wtE2 = case inferType e2 of Just _ -> trivial
+
+
 -- labeling produces well-typed expressions (of the same type) -----------------
 
 {-@ labelType :: e:TypedDSL p -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
