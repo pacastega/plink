@@ -34,8 +34,7 @@ library
       Constraints
       DSL
       Examples
-      FundamentalTheorem
-      FundamentalTheoremLemmas
+      FundamentalTheorem.FundamentalTheoremLemmas
       Label
       LabelingProof.AgreeLemma
       LabelingProof.LabelingLemmas
