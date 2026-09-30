@@ -105,6 +105,7 @@ fundamentalThmE2 :: (Fractional p, Ord p) => Int -> DSL p
 fundamentalThmE2 m0 e ρ m e' λ v σ π =
   wf ?? evalWireUnique m0 m e ρ λ0 m e' λ σ π v γ0 γ h_bool
   where
+    λ0 :: LabelEnv p Int -- somehow needed for the proof to pass
     λ0 = M.MTip
 
     γ0 :: TyEnv' γ0
