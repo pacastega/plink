@@ -143,7 +143,7 @@ witnessGenE' m ρ σ e = case e of
 {-@ witnessGenA' :: m:Nat
                  -> NameValuation p -> σ:WireValuation p m
                  -> {a:LAss p (Btwn 0 m) | wfA a && freshA a σ}
-                 -> Maybe ({σ':WireValuation p m |
+                 -> Maybe ({σ':WireValuation p m | closedAssertion m σ' a &&
                              M.keysSet σ' = S.union (M.keysSet σ) (wiresA a)}) @-}
 witnessGenA' :: (Eq p, Fractional p) => Int
              -> NameValuation p -> WireValuation p -> LAss p Int
