@@ -137,7 +137,7 @@ labelCSE' p nextIndex λ = case M.lookup p λ of
 {-@ reflect labelStore @-}
 {-@ labelStore :: Store p -> m0:Nat -> LabelEnv p (Btwn 0 m0)
                -> (m:{Int | m >= m0}, [LAss p Int], LabelEnv p Int)
-                      <\m   -> {l:[LAss p (Btwn 0 m)] | true},
+                      <\m   -> {l:[LAssI p (Btwn m0 m) (Btwn 0 m)] | true},
                        \_ m -> {v:LabelEnv   p (Btwn 0 m)  | true}> @-}
 labelStore :: (Num p, Ord p) =>
               Store p -> Int -> LabelEnv p Int -> (Int, [LAss p Int], LabelEnv p Int)
@@ -195,7 +195,7 @@ label' p i λ = case p of
 {-@ labelAssertion :: assertion:(Assertion p)
                    -> m0:Nat -> LabelEnv p (Btwn 0 m0)
                    -> (m:{Int | m >= m0}, LAss p Int, LabelEnv p Int)
-                        <\m   -> {l:LAss p (Btwn 0 m) | true},
+                        <\m   -> {l:LAssI p (Btwn m0 m) (Btwn 0 m) | true},
                          \_ m -> {v:LabelEnv p (Btwn 0 m) | true}> @-}
 labelAssertion :: (Num p, Ord p) => Assertion p -> Int -> LabelEnv p Int
             -> (Int, LAss p Int, LabelEnv p Int)

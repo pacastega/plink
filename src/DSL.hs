@@ -373,6 +373,7 @@ wellTyped' e = case inferType' e of
 
 {-@ type TypedLDSL p i = {e:LDSLI p i i | wellTyped' e} @-}
 {-@ type ScalarLDSL p i = {e:LDSLI p i i | scalar' e} @-}
+{-@ type ScalarLDSLI p i j = {e:LDSLI p i j | scalar' e} @-}
 
 {-@ reflect booleanE @-}
 booleanE :: LDSLI p i i -> Bool
@@ -380,40 +381,42 @@ booleanE e = inferType' e == Just TBool
 
 
 {-@ reflect scalar' @-}
-scalar' :: LDSLI p i i -> Bool
+scalar' :: LDSLI p i j -> Bool
 scalar' e = case inferType' e of
   Nothing -> False
   Just (TVec _) -> False
   Just _ ->  True
 
 
-data LAss p i =
-    LNZERO   (LDSLI p i i) i
-  | LBOOLEAN (LDSLI p i i)
-  | LEQA     (LDSLI p i i) (LDSLI p i i)
+type LAss p i = LAssI p i i
+
+data LAssI p i j =
+    LNZERO   (LDSLI p i j) i
+  | LBOOLEAN (LDSLI p i j)
+  | LEQA     (LDSLI p i j) (LDSLI p i j)
   deriving (Show, Eq)
 
-{-@ data LAss p i =
-        LNZERO   (ScalarLDSL p i) i
-      | LBOOLEAN (ScalarLDSL p i)
-      | LEQA     (ScalarLDSL p i) (ScalarLDSL p i)
+{-@ data LAssI p i j =
+        LNZERO   (ScalarLDSLI p i j) i
+      | LBOOLEAN (ScalarLDSLI p i j)
+      | LEQA     (ScalarLDSLI p i j) (ScalarLDSLI p i j)
 @-}
 
 
 {-@ reflect wiresA @-}
-wiresA :: (Ord i) => LAss p i -> S.Set i
+wiresA :: (Ord i) => LAssI p i j -> S.Set i
 wiresA (LNZERO e1 w) = wiresE e1 `S.union` S.singleton w
 wiresA (LBOOLEAN e1) = wiresE e1
 wiresA (LEQA e1 e2)  = wiresE e1 `S.union` wiresE e2
 
 {-@ reflect ptrsA @-}
-ptrsA :: (Ord i) => LAss p i -> S.Set i
+ptrsA :: (Ord j) => LAssI p i j -> S.Set j
 ptrsA (LNZERO e1 _) = ptrsE e1
 ptrsA (LBOOLEAN e1) = ptrsE e1
 ptrsA (LEQA e1 e2)  = ptrsE e1 `S.union` ptrsE e2
 
 {-@ reflect wfA @-}
-wfA :: (Ord i) => LAss p i -> Bool
+wfA :: (Ord i) => LAssI p i j -> Bool
 wfA (LNZERO e1 w) = wfE e1 && (wiresE e1 `disjoint` S.singleton w)
 wfA (LBOOLEAN e1) = wfE e1
 wfA (LEQA  e1 e2) = wfE e1 && wfE e2 && (wiresE e1 `disjoint` wiresE e2)
@@ -584,8 +587,8 @@ nGatesE (LNIL _) = 0
 nGatesE (LCONS p ps) = nGatesE p + nGatesE ps
 
 {-@ measure nGatesA @-}
-{-@ nGatesA :: LAss p i -> Nat @-}
-nGatesA :: LAss p i -> Int
+{-@ nGatesA :: LAssI p i j -> Nat @-}
+nGatesA :: LAssI p i j -> Int
 nGatesA (LNZERO p1 _)    = 1 + nGatesE p1
 nGatesA (LBOOLEAN p1)    = 1 + nGatesE p1
 nGatesA (LEQA p1 p2)     = 1 + nGatesE p1 + nGatesE p2
