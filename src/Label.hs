@@ -42,13 +42,15 @@ size (CONS h ts) = 1 + size h + size ts
 {-@ reflect label @-}
 {-@ label :: TypedDSL p
           -> Store p
-          -> (m:Nat, LDSL p Int, [LAss p Int])
+          -> (m:Nat, LDSL p Int, [LAss p Int], LabelEnv p Int)
                   <\m   -> {l:LDSL p (Btwn 0 m) | true},
-                   \_ m -> {l:[LAss p (Btwn 0 m)] | true}> @-}
-label :: (Num p, Ord p) => DSL p -> Store p -> (Int, LDSL p Int, [LAss p Int])
-label program store = (m, labeledPrograms, labeledStore) where
+                   \_ m -> {l:[LAss p (Btwn 0 m)] | true},
+                   \_ _ m -> {l:LabelEnv p (Btwn 0 m) | true}> @-}
+label :: (Num p, Ord p) => DSL p -> Store p
+      -> (Int, LDSL p Int, [LAss p Int], LabelEnv p Int)
+label program store = (m, labeledPrograms, labeledStore, λ) where
   (m', labeledStore, λ') = labelAs store 0 M.empty
-  (m, labeledPrograms, _λ) = labelE program m' λ'
+  (m, labeledPrograms, λ) = labelE program m' λ'
 
 #else
 
@@ -56,10 +58,11 @@ label program store = (m, labeledPrograms, labeledStore) where
 
 type ExtLabelEnv p i = M.Map (DSL p) i
 
-label :: (Num p, Ord p) => DSL p -> Store p -> (Int, LDSL p Int, [LAss p Int])
-label program store = (m, labeledProgram, labeledStore) where
+label :: (Num p, Ord p) => DSL p -> Store p
+      -> (Int, LDSL p Int, [LAss p Int], LabelEnv p Int)
+label program store = (m, labeledProgram, labeledStore, λ) where
   (m', labeledStore, λ') = labelAs_CSE store 0 M.empty
-  (m, labeledProgram, _λ) = labelE_CSE program m' λ'
+  (m, labeledProgram, λ) = labelE_CSE program m' λ'
 
 labelAs_CSE :: (Num p, Ord p)
             => Store p -> Int -> ExtLabelEnv p Int
