@@ -85,16 +85,16 @@ fundamentalThmE1 m0 e ρ m1 m λ0 σ0 π e' λ v =
 {-@ fundamentalThmA1 :: m0:Nat -> a:Assertion p
                      -> ρ:{NameValuation p | holds a ρ}
 
-                     -> m:{Nat | m0 <= m}
+                     -> m1:{Nat | m0 <= m1} -> m:{Nat | m1 <= m}
                      -> λ0:LabelEnv p (Btwn 0 m0)
                      -> σ0:WireValuation p m0
                      -> Agree λ0 ρ σ0
 
-                     -> a':{LAss p (Btwn 0 m) | freshA a' σ0}
-                     -> λ:{LabelEnv p (Btwn 0 m) |
-                              labelAssertion a m0 λ0 = (m, a', λ)}
+                     -> a':{LAss p (Btwn 0 m1) | freshA a' σ0}
+                     -> λ:{LabelEnv p (Btwn 0 m1) |
+                              labelAssertion a m0 λ0 = (m1, a', λ)}
 
-                     -> (σ::{σ:WireValuation p m | Just σ = witnessGenA' m ρ σ0 a'
+                     -> (σ::{σ:WireValuation p m1 | Just σ = witnessGenA' m ρ σ0 a'
                                                 && coherentA m a' σ
                                                 && M.keysSet σ =
                                                    S.union (M.keysSet σ0) (wiresA a')},
@@ -103,11 +103,12 @@ fundamentalThmE1 m0 e ρ m1 m λ0 σ0 π e' λ v =
 fundamentalThmA1 :: (Fractional p, Ord p) => Int -> Assertion p
                  -> NameValuation p
 
-                 -> Int -> LabelEnv p Int -> WireValuation p -> (String -> Proof)
+                 -> Int -> Int -> LabelEnv p Int -> WireValuation p
+                 -> (String -> Proof)
                  -> LAss p Int -> LabelEnv p Int
 
                  -> (WireValuation p, String -> Proof)
-fundamentalThmA1 m0 a ρ m λ0 σ0 π0 a' λ = case a of
+fundamentalThmA1 m0 a ρ m1 m λ0 σ0 π0 a' λ = case a of
   NZERO e1 -> (σ',π')
               ? evalWireIncr m e1' σ σ' hσ
               ? evalWireScalar m e1' σ'
@@ -174,8 +175,6 @@ fundamentalThmA1 m0 a ρ m λ0 σ0 π0 a' λ = case a of
 
                      -> m1:{Nat | m0 <= m1} -> m:{Nat | m1 <= m}
                      -> λ0:LabelEnv p (Btwn 0 m0)
-                     -> σ0:WireValuation p m0
-                     -> Agree λ0 ρ σ0
 
                      -> a':LAss p (Btwn 0 m1)
                      -> λ:{LabelEnv p (Btwn 0 m1) |
@@ -195,8 +194,7 @@ fundamentalThmA1 m0 a ρ m λ0 σ0 π0 a' λ = case a of
 fundamentalThmA2 :: (Fractional p, Ord p) => Int -> Assertion p
                  -> NameValuation p
 
-                 -> Int -> Int -> LabelEnv p Int -> WireValuation p
-                 -> (String -> Proof)
+                 -> Int -> Int -> LabelEnv p Int
 
                  -> LAss p Int -> LabelEnv p Int
                  -> WireValuation p -> (String -> Proof)
@@ -204,7 +202,7 @@ fundamentalThmA2 :: (Fractional p, Ord p) => Int -> Assertion p
                  -> TyEnv' Int -> TyEnv' Int -> (Int -> Proof)
 
                  -> Proof
-fundamentalThmA2 m0 a ρ m1 m λ0 σ0 π0 a' λ σ π γ0 γ h_bool = case a of
+fundamentalThmA2 m0 a ρ m1 m λ0 a' λ σ π γ0 γ h_bool = case a of
   NZERO e1 -> evalWireUnique m0 m e1 ρ λ0 me1 e1' λ1 σ π v1 γ0 γ1 h_bool1
     where
     {-@ wtE :: { wellTyped e1 } @-}
