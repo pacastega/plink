@@ -282,6 +282,40 @@ coherentEIncr m e σ1 σ2 π = case e of
   LNIL _ -> trivial
   LCONS e1 e2 -> coherentEIncr m e1 σ1 σ2 π ? coherentEIncr m e2 σ1 σ2 π
 
+{-@ coherentAIncr :: m:Nat -> a:LAss p (Btwn 0 m)
+                  -> {σ1:WireValuation p m | closedAssertion m σ1 a && coherentA m a σ1}
+                  -> σ2:WireValuation p m
+                  -> MapGE σ2 σ1
+                  -> { coherentA m a σ2 } @-}
+coherentAIncr :: (Eq p, Fractional p) => Int -> LAss p Int -> WireValuation p
+              -> WireValuation p -> (Int -> Proof) -> Proof
+coherentAIncr m a σ1 σ2 π = case a of
+  LNZERO e1 w -> case inferType' e1 of
+    Just _ -> coherentEIncr m e1 σ1 σ2 π
+            ? π w ? π (outputWire e1)
+  LBOOLEAN e1 -> case inferType' e1 of
+    Just _ -> coherentEIncr m e1 σ1 σ2 π
+            ? π (outputWire e1)
+  LEQA e1 e2 -> case inferType' e1 of
+    Just _ -> case inferType' e2 of
+      Just _ -> coherentEIncr m e1 σ1 σ2 π
+              ? coherentEIncr m e2 σ1 σ2 π
+              ? π (outputWire e1) ? π (outputWire e2)
+
+{-@ coherentAsIncr :: m:Nat -> as:[LAss p (Btwn 0 m)]
+                   -> {σ1:WireValuation p m | closedAssertions m σ1 as
+                                           && coherentAs m σ1 as}
+                   -> σ2:WireValuation p m
+                   -> MapGE σ2 σ1
+                   -> { coherentAs m σ2 as } @-}
+coherentAsIncr :: (Eq p, Fractional p) => Int -> [LAss p Int] -> WireValuation p
+               -> WireValuation p -> (Int -> Proof) -> Proof
+coherentAsIncr m st σ1 σ2 π = case st of
+  [] -> trivial
+  a:as -> liquidAssert (closedAssertion m σ1 a)
+        ? coherentAIncr  m a  σ1 σ2 π
+        ? coherentAsIncr m as σ1 σ2 π
+
 
 -- if wires(e) are bound in σ and σ' ≥ σ, they are also bound in σ' ------------
 

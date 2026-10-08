@@ -39,6 +39,13 @@ holds a ρ = case a of
   _ -> False
 
 
+{-@ reflect holdsAll @-}
+{-@ holdsAll :: Store p -> NameValuation p -> Bool @-}
+holdsAll :: (Fractional p, Eq p) => Store p -> NameValuation p -> Bool
+holdsAll [] _ = True
+holdsAll (a:as) ρ = holds a ρ && holdsAll as ρ
+
+
 -- workarounds to fix "crash: unknown constant" --------------------------------
 
 {-@ reflect foo @-}

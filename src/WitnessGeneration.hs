@@ -36,6 +36,11 @@ freshE e σ = disjoint (wiresE e) (M.keysSet σ)
 freshA :: (Ord i) => LAss p i -> M.Map i p -> Bool
 freshA a σ = disjoint (wiresA a) (M.keysSet σ)
 
+--TODO: substitute freshPrograms for freshAs
+{-@ inline freshAs @-}
+freshAs :: (Ord i) => [LAss p i] -> M.Map i p -> Bool
+freshAs as σ = disjoint (wiresAs as) (M.keysSet σ)
+
 {-@ inline freshProgram @-}
 freshProgram :: (Ord i) => LProg p i -> M.Map i p -> Bool
 freshProgram pr σ = disjoint (wires pr) (M.keysSet σ)
@@ -157,3 +162,19 @@ witnessGenA' m ρ σ a = case a of
   LEQA p1 p2 -> case scalar' p1 ?? witnessGenE' m ρ σ p1 of
     Nothing -> Nothing
     Just σ1 -> scalar' p2 ?? witnessGenE' m ρ σ1 p2
+
+{-@ reflect witnessGenAStar @-}
+{-@ witnessGenAStar :: m:Nat
+                   -> NameValuation p
+                   -> σ:WireValuation p m
+                   -> as:{[LAss p (Btwn 0 m)] | wfAs as && freshAs as σ}
+                   -> Maybe ({σ':WireValuation p m |
+                               M.keysSet σ' = S.union (M.keysSet σ) (wiresAs as)}) @-}
+witnessGenAStar :: (Eq p, Fractional p) => Int
+               -> NameValuation p -> WireValuation p -> [LAss p Int]
+               -> Maybe (WireValuation p)
+witnessGenAStar m ρ σ store = case store of
+  [] -> Just σ
+  a':as' -> case witnessGenA' m ρ σ a' of
+    Nothing -> Nothing
+    Just σ' -> witnessGenAStar m ρ σ' as'

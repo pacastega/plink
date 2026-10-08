@@ -21,7 +21,7 @@ import MapLemmas
 import Language.Haskell.Liquid.ProofCombinators
 
 
--- the first argument does not affect the result of the function ---------------
+-- wgE ignores its first argument ----------------------------------------------
 {-@ wgLemma :: m:Nat -> m':{Nat | m' >= m}
             -> ρ:NameValuation p -> σ:WireValuation p m
             -> e:{TypedLDSL p (Btwn 0 m) | wfE e && freshE e σ}
@@ -47,6 +47,24 @@ wgLemma m m' ρ σ e = case e of
   LNIL _ ->  trivial
   LCONS e1 e2 -> wgLemma m m' ρ σ e1 ? case witnessGenE' m ρ σ e1 of
     Nothing -> trivial; Just σ1 -> wgLemma m m' ρ σ1 e2
+
+-- wgA ignores its first argument ----------------------------------------------
+{-@ wgALemma :: m:Nat -> m':{Nat | m' >= m}
+             -> ρ:NameValuation p -> σ:WireValuation p m
+             -> a:{LAss p (Btwn 0 m) | wfA a && freshA a σ}
+             -> { witnessGenA' m ρ σ a == witnessGenA' m' ρ σ a } @-}
+wgALemma :: (Eq p, Fractional p) => Int -> Int
+         -> NameValuation p -> WireValuation p -> LAss p Int -> Proof
+wgALemma m m' ρ σ0 a = case a of
+  LNZERO e1 w -> case inferType' e1 of
+    Just _ -> wgLemma m m' ρ σ0 e1
+  LBOOLEAN e1 -> case inferType' e1 of
+    Just _ -> wgLemma m m' ρ σ0 e1
+  LEQA e1 e2 -> case inferType' e1 of
+    Just _ -> wgLemma m m' ρ σ0 e1 ? case witnessGenE' m ρ σ0 e1 of
+      Nothing -> trivial
+      Just σ1 -> case inferType' e2 of
+        Just _ -> wgLemma m m' ρ σ1 e2
 
 
 -- WG always produces values in {0,1} for Bool-typed expressions ---------------
@@ -107,6 +125,37 @@ wgIncr m ρ σ e σ' j = case e of
     where σ1 = case witnessGenE' m ρ σ  e1 of Just s -> s
           σ2 = case witnessGenE' m ρ σ1 e2 of Just s -> s
 
+{-@ wgAIncr :: m:Nat -> ρ:NameValuation p -> σ:WireValuation p m
+            -> {a:LAss p (Btwn 0 m) | wfA a && freshA a σ}
+            -> {σ':WireValuation p m | Just σ' = witnessGenA' m ρ σ a}
+            -> MapGE σ' σ @-}
+wgAIncr :: (Eq p, Fractional p) => Int -> NameValuation p -> WireValuation p
+        -> LAss p Int -> WireValuation p -> (Int -> Proof)
+wgAIncr m ρ σ a σ' j = case a of
+  LNZERO e1 w -> case inferType' e1 of
+    Just _ -> case witnessGenE' m ρ σ e1 of
+      Just σ' -> wgIncr m ρ σ e1 σ' j
+  LBOOLEAN e1 -> case inferType' e1 of
+    Just _ -> case witnessGenE' m ρ σ e1 of
+      Just σ' -> wgIncr m ρ σ e1 σ' j
+  LEQA e1 e2  -> case inferType' e1 of
+    Just _ -> case inferType' e2 of
+      Just _ -> case witnessGenE' m ρ σ e1 of
+        Just σ1 -> case witnessGenE' m ρ σ1 e2 of
+          Just σ' -> wgIncr m ρ σ  e1 σ1 j ?? wgIncr m ρ σ1 e2 σ' j
+
+{-@ wgAsIncr :: m:Nat -> ρ:NameValuation p -> σ:WireValuation p m
+             -> {as:[LAss p (Btwn 0 m)] | wfAs as && freshAs as σ}
+             -> {σ':WireValuation p m | Just σ' = witnessGenAStar m ρ σ as}
+             -> MapGE σ' σ @-}
+wgAsIncr :: (Eq p, Fractional p) => Int -> NameValuation p -> WireValuation p
+         -> [LAss p Int] -> WireValuation p -> (Int -> Proof)
+wgAsIncr m ρ σ store σ' j = case store of
+  [] -> trivial
+  a:as -> case witnessGenA' m ρ σ a of
+    Just σ1 -> wgAIncr     m ρ σ  a  σ1 j
+            ?? wgAsIncr m ρ σ1 as σ' j
+
 
 -- WG produces valuations that bind all wires in the expression ----------------
 
@@ -117,6 +166,27 @@ wgIncr m ρ σ e σ' j = case e of
 wgClosed :: (Eq p, Fractional p) => Int -> NameValuation p -> WireValuation p
            -> LDSL p Int -> WireValuation p -> Proof
 wgClosed m ρ σ e' σ' = case witnessGenE' m ρ σ e' of Just _ -> trivial
+
+{-@ wgAClosed :: m:Nat -> ρ:NameValuation p -> σ:WireValuation p m
+              -> a':{LAss p (Btwn 0 m) | wfA a' && freshA a' σ}
+              -> σ':{WireValuation p m | Just σ' = witnessGenA' m ρ σ a'}
+              -> { closedAssertion m σ' a' } @-}
+wgAClosed :: (Eq p, Fractional p) => Int -> NameValuation p -> WireValuation p
+          -> LAss p Int -> WireValuation p -> Proof
+wgAClosed m ρ σ a' σ' = case witnessGenA' m ρ σ a' of Just _ -> trivial
+
+{-@ wgAsClosed :: m:Nat -> ρ:NameValuation p -> σ:WireValuation p m
+               -> st':{[LAss p (Btwn 0 m)] | wfAs st' && freshAs st' σ}
+               -> σ':{WireValuation p m | Just σ' = witnessGenAStar m ρ σ st'}
+               -> { closedAssertions m σ' st' } @-}
+wgAsClosed :: (Eq p, Fractional p) => Int -> NameValuation p -> WireValuation p
+           -> [LAss p Int] -> WireValuation p -> Proof
+wgAsClosed m ρ σ st' σ' = case st' of
+  [] -> trivial
+  a:as -> case witnessGenA' m ρ σ a of
+    Just σ1 -> case witnessGenAStar m ρ σ1 as of
+      Just _ -> wgAClosed  m ρ σ  a  σ1 ?? closedAssertion m σ' a
+             ?? wgAsClosed m ρ σ1 as σ'
 
 
 -- WG works inductively on the subexpressions ----------------------------------

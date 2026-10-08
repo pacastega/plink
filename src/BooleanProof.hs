@@ -127,6 +127,29 @@ tyEnvA a γ = case a of
             -> tyEnvE e2 γ1
   _ -> Nothing
 
+{-@ reflect tyEnvAs @-}
+{-@ tyEnvAs :: as:[LAss p i]
+            -> γ:TyEnv' i
+            -> Maybe ({γ':TyEnv' i |
+                        M.keysSet γ' = S.union (M.keysSet γ)
+                                               (S.union (wiresAs as) (ptrsAs as))}) @-}
+tyEnvAs :: (Ord i) => [LAss p i] -> TyEnv' i -> Maybe (TyEnv' i)
+tyEnvAs [] γ = Just γ
+tyEnvAs (a:as) γ = case tyEnvA a γ of
+  Nothing -> Nothing
+  Just γ1 -> tyEnvAs as γ1
+
+{-@ reflect tyEnvPr @-}
+{-@ tyEnvPr :: e:TypedLDSL p i -> as:[LAss p i] -> γ:TyEnv' i
+            -> Maybe ({γ':TyEnv' i |
+                        M.keysSet γ' = S.union (M.keysSet γ)
+                                        (S.union (S.union (wiresAs as) (ptrsAs as))
+                                                 (S.union (wiresE e) (ptrsE e)))}) @-}
+tyEnvPr :: (Ord i) => LDSL p i -> [LAss p i] -> TyEnv' i -> Maybe (TyEnv' i)
+tyEnvPr e as γ = case tyEnvAs as γ of
+  Nothing -> Nothing
+  Just γ1 -> tyEnvE e γ1
+
 
 {-@ outputWireBool :: e:{LDSL p i | booleanE e}
                    -> γ:TyEnv' i
@@ -202,6 +225,32 @@ tyEnvEIncr e γ γ' j = case inferType' e of
       Just γ1 -> case tyEnvE e2 γ1 of
         Just γ2 -> tyEnvEIncr e1 γ  γ1 j
                 ?? tyEnvEIncr e2 γ1 γ2 j
+
+{-@ tyEnvAIncr :: a:LAss p Int -> γ:TyEnv' Int
+               -> γ':{TyEnv' Int | Just γ' = tyEnvA a γ}
+               -> MapGE γ' γ @-}
+tyEnvAIncr :: LAss p Int -> TyEnv' Int -> TyEnv' Int -> (Int -> Proof)
+tyEnvAIncr a γ γ' j = case a of
+  LNZERO e1 w -> case tyEnvE e1 γ of
+    Just γ1 -> case insertIfCompatible w TF γ1 of
+      Just γw -> tyEnvEIncr e1 γ γ1 j
+              ?? insertICIncr w TF γ1 γw j
+  LBOOLEAN e1 -> case tyEnvE e1 γ of
+    Just γ1 -> tyEnvEIncr e1 γ γ1 j
+  LEQA e1 e2 -> case tyEnvE e1 γ of
+    Just γ1 -> case tyEnvE e2 γ1 of
+      Just γ2 -> tyEnvEIncr e1 γ  γ1 j
+              ?? tyEnvEIncr e2 γ1 γ2 j
+
+{-@ tyEnvAsIncr :: as:[LAss p Int] -> γ:TyEnv' Int
+                -> γ':{TyEnv' Int | Just γ' = tyEnvAs as γ}
+                -> MapGE γ' γ @-}
+tyEnvAsIncr :: [LAss p Int] -> TyEnv' Int -> TyEnv' Int -> (Int -> Proof)
+tyEnvAsIncr store γ γ' j = case store of
+  [] -> trivial
+  a:as -> tyEnvAIncr a γ γ1 j
+       ?? tyEnvAsIncr as γ1 γ' j where
+    γ1 = case tyEnvA a γ of Just g -> g
 
 
 {-@ booleanProof' :: m:Nat
@@ -280,6 +329,35 @@ booleanProof' m σ e γ γ' j = case inferType' e of
                          ?? lookupLemma j γ1
                          ?? booleanProof' m σ e1 γ γ1 j
                        else tyEnvEIncr e γ γ' j
+
+{-@ booleanProofA' :: m:Nat
+                  -> σ:WireValuation p m
+                  -> a:LAss p (Btwn 0 m)
+                  -> γ:TyEnv' (Btwn 0 m)
+                  -> γ':{TyEnv' (Btwn 0 m) | Just γ' = tyEnvA a γ}
+                  -> j:{Btwn 0 m | S.member j (wiresA a)
+                                && M.lookup j γ' = Just TBool}
+                  -> { coherentA m a σ => boolean (M.lookup' j σ) } @-}
+booleanProofA' :: (Fractional p, Eq p)
+              => Int -> WireValuation p -> LAss p Int
+              -> TyEnv' Int -> TyEnv' Int -> Int
+              -> Proof
+booleanProofA' m σ a γ γ' j = case a of
+  LNZERO e1 w -> if j == w
+                 then lookupInsertIC w TF γ1 γ' j ?? error ""
+                 else insertICIncr w TF γ1 γ' j
+                   ?? lookupLemma j γ1 ?? lookupLemma j γ'
+                   ?? booleanProof' m σ e1 γ γ1 j
+    where γ1 = case tyEnvE e1 γ of Just g -> g
+  LBOOLEAN e1 -> booleanProof' m σ e1 γ γ' j
+  LEQA e1 e2 -> -- j ∈ wires(a) = wires(e1) ∪ wires(e2)
+    if S.member j (wiresE e2)
+    then booleanProof' m σ e2 γ1 γ2 j         -- if j ∈ wires(e2)
+    else lookupLemma j γ1 ?? lookupLemma j γ2 -- otherwise, j ∈ wires(e1)
+      ?? tyEnvEIncr e2 γ1 γ2 j
+      ?? booleanProof' m σ e1 γ  γ1 j
+    where γ1 = case tyEnvE e1 γ  of Just g -> g
+          γ2 = case tyEnvE e2 γ1 of Just g -> g
 
 
 -- workarounds to fix "crash: unknown constant"

@@ -421,6 +421,25 @@ wfA (LNZERO e1 w) = wfE e1 && (wiresE e1 `disjoint` S.singleton w)
 wfA (LBOOLEAN e1) = wfE e1
 wfA (LEQA  e1 e2) = wfE e1 && wfE e2 && (wiresE e1 `disjoint` wiresE e2)
 
+
+{-@ reflect wiresAs @-}
+{-@ wiresAs :: [LAssI p i j] -> S.Set i @-}
+wiresAs :: (Ord i) => [LAssI p i j] -> S.Set i
+wiresAs [] = S.empty
+wiresAs (a:as) = wiresA a `S.union` wiresAs as
+
+{-@ reflect ptrsAs @-}
+ptrsAs :: (Ord i) => [LAss p i] -> S.Set i
+ptrsAs [] = S.empty
+ptrsAs (a:as) = ptrsA a `S.union` ptrsAs as
+
+{-@ reflect wfAs @-}
+{-@ wfAs :: [LAss p i] -> Bool @-}
+wfAs :: (Ord i) => [LAss p i] -> Bool
+wfAs [] = True
+wfAs (a:as) = wfA a && disjoint (wiresA a) (wiresAs as) && wfAs as
+
+
 data LProg p i = LExpr (LDSL p i) | LAss (LAss p i)
 {-@ data LProg p i = LExpr (TypedLDSL p i) | LAss (LAss p i) @-}
 
@@ -481,6 +500,12 @@ wfPtrA ws a = case a of
   LBOOLEAN e1 -> wfPtrE ws e1
   LEQA e1 e2 -> wfPtrE ws e1 && wfPtrE (ws `S.union` wiresE e1) e2
 
+{-@ reflect wfPtrAs @-}
+wfPtrAs :: (Ord i) => S.Set i -> [LAss p i] -> Bool
+wfPtrAs ws st = case st of
+  [] -> True
+  a:as -> wfPtrA ws a && wfPtrAs (S.union ws (wiresA a)) as
+
 {-@ reflect wfPtr @-}
 wfPtr :: (Ord i) => S.Set i -> LProg p i -> Bool
 wfPtr ws pr = case pr of
@@ -518,6 +543,26 @@ wfPtrEIncr ws ws' e = case e of
                             (ws' `S.union` wiresE e1)
                             e2
 
+{-@ wfPtrAIncr :: ws:S.Set i -> ws':{S.Set i | S.isSubsetOf ws ws'}
+               -> a:{LAss p i | wfPtrA ws a}
+               -> { wfPtrA ws' a } @-}
+wfPtrAIncr :: (Ord i) => S.Set i -> S.Set i -> LAss p i -> Proof
+wfPtrAIncr ws ws' a = case a of
+  LNZERO e1 _ -> wfPtrEIncr ws ws' e1
+  LBOOLEAN e1 -> wfPtrEIncr ws ws' e1
+  LEQA e1 e2 -> wfPtrEIncr ws ws' e1
+              ? wfPtrEIncr (S.union ws (wiresE e1)) (S.union ws' (wiresE e1)) e2
+
+{-@ wfPtrAsIncr :: ws:S.Set i -> ws':{S.Set i | S.isSubsetOf ws ws'}
+                -> st:{[LAss p i] | wfPtrAs ws st}
+                -> { wfPtrAs ws' st } @-}
+wfPtrAsIncr :: (Ord i) => S.Set i -> S.Set i -> [LAss p i] -> Proof
+wfPtrAsIncr ws ws' st = case st of
+  [] -> trivial
+  a:as -> wfPtrAIncr  ws ws' a
+        ? wfPtrAsIncr (S.union ws (wiresA a)) (S.union ws' (wiresA a)) as
+
+
 {-@ wfPtrELemma :: ws:S.Set i
                 -> e:{LDSL p i | wfPtrE ws e}
                 -> { S.isSubsetOf (ptrsE e) (S.union (wiresE e) ws) } @-}
@@ -541,6 +586,23 @@ wfPtrELemma ws e = case e of
   LNIL _ -> trivial
   LCONS e1 e2 -> wfPtrELemma ws e1
               ?? wfPtrELemma (ws `S.union` wiresE e1) e2
+
+{-@ wfPtrALemma :: ws:S.Set i
+                -> a:{LAss p i | wfPtrA ws a}
+                -> { S.isSubsetOf (ptrsA a) (S.union (wiresA a) ws) } @-}
+wfPtrALemma :: (Ord i) => S.Set i -> LAss p i -> Proof
+wfPtrALemma ws a = case a of
+  LNZERO e1 w -> wfPtrELemma ws e1
+  LBOOLEAN e1 -> wfPtrELemma ws e1
+  LEQA e1 e2 -> wfPtrELemma ws e1 ? wfPtrELemma (S.union ws (wiresE e1)) e2
+
+{-@ wfPtrAsLemma :: ws:S.Set i
+                 -> st:{[LAss p i] | wfPtrAs ws st}
+                 -> { S.isSubsetOf (ptrsAs st) (S.union (wiresAs st) ws) } @-}
+wfPtrAsLemma :: (Ord i) => S.Set i -> [LAss p i] -> Proof
+wfPtrAsLemma ws st = case st of
+  [] -> trivial
+  a:as -> wfPtrALemma ws a ? wfPtrAsLemma (S.union ws (wiresA a)) as
 
 
 {-@ reflect outputWire @-}
@@ -683,11 +745,17 @@ compileA m (LEQA p1 p2) = c
 closedExpr :: Int -> WireValuation p -> LDSL p Int -> Bool
 closedExpr m σ e = (wiresE e `S.union` ptrsE e) `S.isSubsetOf` M.keysSet σ
 
-
 {-@ inline closedAssertion @-}
 {-@ closedAssertion :: m:Nat -> WireValuation p m -> a:LAss p (Btwn 0 m) -> Bool @-}
 closedAssertion :: Int -> WireValuation p -> LAss p Int -> Bool
 closedAssertion m σ a = (wiresA a `S.union` ptrsA a) `S.isSubsetOf` M.keysSet σ
+
+{-@ reflect closedAssertions @-}
+{-@ closedAssertions :: m:Nat -> WireValuation p m -> [LAss p (Btwn 0 m)] -> Bool @-}
+closedAssertions :: Int -> WireValuation p -> [LAss p Int] -> Bool
+closedAssertions m σ store = case store of
+  [] -> True
+  a:as -> closedAssertion m σ a && closedAssertions m σ as
 
 
 {-@ inline closedProg @-}
@@ -785,6 +853,16 @@ coherentA m a σ = case a of
   LEQA e1 e2 -> coherentE m e1 σ && coherentE m e2 σ && v1 == v2
     where v1 = M.lookup' (outputWire e1) σ
           v2 = M.lookup' (outputWire e2) σ
+
+{-@ reflect coherentAs @-}
+{-@ coherentAs :: m:Nat -> σ:WireValuation p m
+               -> as:[{a:LAss p (Btwn 0 m) | closedAssertion m σ a}]
+               -> Bool @-}
+coherentAs :: (Eq p, Fractional p) => Int -> WireValuation p
+           -> [LAss p Int] -> Bool
+coherentAs m σ store' = case store' of
+  [] -> True
+  a':as' -> coherentA m a' σ && coherentAs m σ as'
 
 
 {-# NOINLINE counter #-}

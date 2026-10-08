@@ -164,6 +164,21 @@ labelAWF a m0 λ m a' λ' = case a of
           {-@ wtE2 :: { wellTyped e2 } @-}
           wtE2 = case inferType e2 of Just _ -> trivial
 
+{-@ labelAsWF :: st:Store p -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
+              -> m:{Int | m >= m0} -> st':[LAssI p (Btwn m0 m) (Btwn 0 m)]
+              -> λ':{LabelEnv p Int | labelStore st m0 λ = (m, st', λ')}
+              -> { wfAs st' } @-}
+labelAsWF :: (Num p, Ord p) => Store p -> Int -> LabelEnv p Int
+          -> Int -> [LAss p Int] -> LabelEnv p Int
+          -> Proof
+labelAsWF st m0 λ m st' λ' = case st of
+  [] -> trivial
+  a:as -> labelAssertionWF a m0 λ m1 a' λ1
+        ? disjLemma m0 m1 m2 (wiresA a') (wiresAs as')
+        ? labelAsWF as m1 λ1 m2 as' λ2 where
+    (m1,a',λ1) = labelAssertion a m0 λ
+    (m2,as',λ2) = labelStore as m1 λ1
+
 
 -- labeling produces well-typed expressions (of the same type) -----------------
 
