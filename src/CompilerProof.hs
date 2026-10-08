@@ -116,7 +116,7 @@ compileProofE m e γ γ' σ ws π = case e of
                    -- if j ∈ wires(e1) (considering wires(e1) ⊆ keys(γ1))
                    else tyEnvEIncr e2 γ1 γ2 j -- γ2[j] = γ1[j] since γ2 ≥ γ1
                      ?? lookupLemma j γ1       -- M.lookup j γ1 = Just γ1[j]
-                     ?? booleanProof' m σ e1 γ γ1 j -- σ ⊢ e1 ⇒ σ[j] ∈ {0,1}
+                     ?? booleanProofE m σ e1 γ γ1 j -- σ ⊢ e1 ⇒ σ[j] ∈ {0,1}
 
 
   LUN op e1 i -> case tyEnvE e1 γ of
@@ -196,7 +196,7 @@ compileProofE m e γ γ' σ ws π = case e of
                  -- if j ∈ wires(e1) (considering wires(e1) ⊆ keys(γ1))
                  else tyEnvEIncr e2 γ1 γ2 j -- γ2[j] = γ1[j] since γ2 ≥ γ1
                    ?? lookupLemma j γ1       -- M.lookup j γ1 = Just γ1[j]
-                   ?? booleanProof' m σ e1 γ γ1 j -- σ ⊢ e1 ⇒ σ[j] ∈ {0,1}
+                   ?? booleanProofE m σ e1 γ γ1 j -- σ ⊢ e1 ⇒ σ[j] ∈ {0,1}
 
 
   LBoolToF e1 -> compileProofE m e1 γ γ' σ ws π
@@ -253,7 +253,7 @@ compileProofE m e γ γ' σ ws π = case e of
                -- if j ∈ wires(e1) (considering wires(e1) ⊆ keys(γ1))
                else tyEnvEIncr e2 γ1 γ' j -- γ'[j] = γ1[j] since γ' ≥ γ1
                  ?? lookupLemma j γ1       -- M.lookup j γ1 = Just γ1[j]
-                 ?? booleanProof' m σ e1 γ γ1 j -- σ ⊢ e1 ⇒ σ[j] ∈ {0,1}
+                 ?? booleanProofE m σ e1 γ γ1 j -- σ ⊢ e1 ⇒ σ[j] ∈ {0,1}
 
 
 {-@ compileProofA :: m:Nat
@@ -290,7 +290,7 @@ compileProofA m a γ γ' σ = case a of
                    -> { coherentE m e1 σ => boolean (M.lookup' j σ) } @-}
             π2 j = tyEnvEIncr e2 γ1 γ' j
                 ?? lookupLemma j γ1 ?? lookupLemma j γ'
-                ?? booleanProof' m σ e1 γ γ1 j
+                ?? booleanProofE m σ e1 γ γ1 j
 
 {-@ satisfiesDistr :: n1:Nat -> n2:Nat -> m:Nat
                    -> σ:WireValuation p m

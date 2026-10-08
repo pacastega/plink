@@ -69,7 +69,7 @@ evalWireUnique2 m0 e ρ _ m e' λ' σ π v γ' =
                    -> { boolean (M.lookup' j σ) } @-}
   h_bool j = labelElems e m0 λ m e' λ'
           ?? liquidAssert (S.isSubsetOf (elemsSet λ') (S.union (elemsSet λ) (wiresE e')))
-          ?? booleanProof' m σ e' M.MTip γ' j
+          ?? booleanProofE m σ e' M.MTip γ' j
 
 
 {-@ auxUn :: m0:Nat -> m':Nat -> op:UnOp p -> e1:TypedDSL p

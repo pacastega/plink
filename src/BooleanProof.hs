@@ -182,7 +182,7 @@ booleanProof'' :: (Fractional p, Eq p)
 booleanProof'' m σ e = case tyEnvE e M.MTip of
   Just γ -> outputWireBool e M.MTip γ
          ?? wfPtrELemma S.empty e
-         ?? booleanProof' m σ e M.MTip γ (outputWire e)
+         ?? booleanProofE m σ e M.MTip γ (outputWire e)
 
 
 {-@ tyEnvEIncr :: e:TypedLDSL p Int -> γ:TyEnv' Int
@@ -253,7 +253,7 @@ tyEnvAsIncr store γ γ' j = case store of
     γ1 = case tyEnvA a γ of Just g -> g
 
 
-{-@ booleanProof' :: m:Nat
+{-@ booleanProofE :: m:Nat
                   -> σ:WireValuation p m
                   -> e:TypedLDSL p (Btwn 0 m)
                   -> γ:TyEnv' (Btwn 0 m)
@@ -261,11 +261,11 @@ tyEnvAsIncr store γ γ' j = case store of
                   -> j:{Btwn 0 m | S.member j (wiresE e)
                                 && M.lookup j γ' = Just TBool}
                   -> { coherentE m e σ => boolean (M.lookup' j σ) } @-}
-booleanProof' :: (Fractional p, Eq p)
+booleanProofE :: (Fractional p, Eq p)
               => Int -> WireValuation p -> LDSL p Int
               -> TyEnv' Int -> TyEnv' Int -> Int
               -> Proof
-booleanProof' m σ e γ γ' j = case inferType' e of
+booleanProofE m σ e γ γ' j = case inferType' e of
   Just τ -> case e of
     LVAR _ τ i -> lookupInsertIC i τ γ γ' j
     PTR   _ _ -> error "impossible"
@@ -281,18 +281,18 @@ booleanProof' m σ e γ γ' j = case inferType' e of
                        ?? lookupInsertIC w TF γ2 γw j
                        ?? lookupLemma j γ2
                        ?? if S.member j (wiresE e2)
-                          then booleanProof' m σ e2 γ1 γ2 j
+                          then booleanProofE m σ e2 γ1 γ2 j
                           else if S.member j (wiresE e1)
                                then tyEnvEIncr e2 γ1 γ2 j
                                  ?? lookupLemma j γ1
-                                 ?? booleanProof' m σ e1 γ  γ1 j
+                                 ?? booleanProofE m σ e1 γ  γ1 j
                                else tyEnvEIncr e γ γ' j
 
     LUN _ e1 i -> case tyEnvE e1 γ of
       Just γ1 -> if j == i
                  then lookupInsertIC i τ γ1 γ' j
                  else lookupInsertIC i τ γ1 γ' j
-                   ?? booleanProof' m σ e1 γ γ1 j
+                   ?? booleanProofE m σ e1 γ γ1 j
 
     LBIN _ e1 e2 i -> case tyEnvE e1 γ of
       Just γ1 -> case tyEnvE e2 γ1 of
@@ -301,14 +301,14 @@ booleanProof' m σ e γ γ' j = case inferType' e of
                    else lookupInsertIC i τ γ2 γ' j
                      ?? lookupLemma j γ2
                      ?? if S.member j (wiresE e2)
-                        then booleanProof' m σ e2 γ1 γ2 j
+                        then booleanProofE m σ e2 γ1 γ2 j
                         else if S.member j (wiresE e1)
                              then tyEnvEIncr e2 γ1 γ2 j
                                ?? lookupLemma j γ1
-                               ?? booleanProof' m σ e1 γ  γ1 j
+                               ?? booleanProofE m σ e1 γ  γ1 j
                              else tyEnvEIncr e γ γ' j
 
-    LBoolToF e1 -> booleanProof' m σ e1 γ γ' j
+    LBoolToF e1 -> booleanProofE m σ e1 γ γ' j
     LEQLC e1 _ w i -> case tyEnvE e1 γ of
       Just γ1 -> case insertIfCompatible w TF γ1 of
         Just γw -> if j == i
@@ -317,20 +317,20 @@ booleanProof' m σ e γ γ' j = case inferType' e of
                      ?? lookupInsertIC w TF    γ1 γw j
                      ?? lookupLemma j γw
                      ?? lookupLemma j γ1
-                     ?? booleanProof' m σ e1 γ γ1 j
+                     ?? booleanProofE m σ e1 γ γ1 j
 
     LNIL _ -> trivial
     LCONS e1 e2 -> case tyEnvE e1 γ of
        Just γ1 -> if S.member j (wiresE e2)
-                  then booleanProof' m σ e2 γ1 γ' j
+                  then booleanProofE m σ e2 γ1 γ' j
                   else if S.member j (wiresE e1)
                        then tyEnvEIncr e2 γ1 γ' j
                          ?? lookupLemma j γ'
                          ?? lookupLemma j γ1
-                         ?? booleanProof' m σ e1 γ γ1 j
+                         ?? booleanProofE m σ e1 γ γ1 j
                        else tyEnvEIncr e γ γ' j
 
-{-@ booleanProofA' :: m:Nat
+{-@ booleanProofA :: m:Nat
                   -> σ:WireValuation p m
                   -> a:LAss p (Btwn 0 m)
                   -> γ:TyEnv' (Btwn 0 m)
@@ -338,24 +338,24 @@ booleanProof' m σ e γ γ' j = case inferType' e of
                   -> j:{Btwn 0 m | S.member j (wiresA a)
                                 && M.lookup j γ' = Just TBool}
                   -> { coherentA m a σ => boolean (M.lookup' j σ) } @-}
-booleanProofA' :: (Fractional p, Eq p)
+booleanProofA :: (Fractional p, Eq p)
               => Int -> WireValuation p -> LAss p Int
               -> TyEnv' Int -> TyEnv' Int -> Int
               -> Proof
-booleanProofA' m σ a γ γ' j = case a of
+booleanProofA m σ a γ γ' j = case a of
   LNZERO e1 w -> if j == w
                  then lookupInsertIC w TF γ1 γ' j ?? error ""
                  else insertICIncr w TF γ1 γ' j
                    ?? lookupLemma j γ1 ?? lookupLemma j γ'
-                   ?? booleanProof' m σ e1 γ γ1 j
+                   ?? booleanProofE m σ e1 γ γ1 j
     where γ1 = case tyEnvE e1 γ of Just g -> g
-  LBOOLEAN e1 -> booleanProof' m σ e1 γ γ' j
+  LBOOLEAN e1 -> booleanProofE m σ e1 γ γ' j
   LEQA e1 e2 -> -- j ∈ wires(a) = wires(e1) ∪ wires(e2)
     if S.member j (wiresE e2)
-    then booleanProof' m σ e2 γ1 γ2 j         -- if j ∈ wires(e2)
+    then booleanProofE m σ e2 γ1 γ2 j         -- if j ∈ wires(e2)
     else lookupLemma j γ1 ?? lookupLemma j γ2 -- otherwise, j ∈ wires(e1)
       ?? tyEnvEIncr e2 γ1 γ2 j
-      ?? booleanProof' m σ e1 γ  γ1 j
+      ?? booleanProofE m σ e1 γ  γ1 j
     where γ1 = case tyEnvE e1 γ  of Just g -> g
           γ2 = case tyEnvE e2 γ1 of Just g -> g
 
