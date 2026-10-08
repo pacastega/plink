@@ -34,6 +34,17 @@ notElemLemma key n (M.MBin k _ m) = if key == k then () else notElemLemma key n 
 lookupLemma :: Eq k => k -> M.Map k v -> Proof
 lookupLemma key (M.MBin k _ m) = if key == k then () else lookupLemma key m
 
+{-@ reflect elemsSet @-}
+elemsSet :: (Ord v) => M.Map k v -> S.Set v
+elemsSet M.MTip = S.empty
+elemsSet (M.MBin _ v m) = S.singleton v `S.union` elemsSet m
+
+{-@ elementLemma2 :: key:k -> val:v -> m:{M.Map k v | M.lookup key m = Just val}
+                  -> { S.member val (elemsSet m) } @-}
+elementLemma2 :: Ord k => k -> v -> M.Map k v -> Proof
+elementLemma2 k v (M.MBin k' v' m') =
+  if k == k' then trivial else elementLemma2 k v m'
+
 #else
 
 import qualified Data.Map as M
@@ -48,5 +59,11 @@ notElemLemma _ _ _ = ()
 
 lookupLemma :: k -> M.Map k v -> Proof
 lookupLemma _ _ = ()
+
+elemsSet :: (Ord v) => M.Map k v -> S.Set v
+elemsSet m = S.fromList (M.elems m)
+
+elementLemma2 :: Ord k => k -> v -> M.Map k v -> Proof
+elementLemma2 k v m = trivial
 
 #endif
