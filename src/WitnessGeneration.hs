@@ -43,13 +43,13 @@ freshAs as σ = disjoint (wiresAs as) (M.keysSet σ)
 {-@ reflect witnessGen @-}
 {-@ witnessGen :: m:Nat
                -> as:{[LAss p (Btwn 0 m)] | wfAs as}
-               -> e:{LDSL p (Btwn 0 m) | wfE e}
-               -> NameValuation p
-               -> Maybe (WireValuation p m) @-}
+               -> e:{TypedLDSL p (Btwn 0 m) | wfE e && disjoint (wiresE e) (wiresAs as)}
+               -> NameValuation p -> Maybe (WireValuation p m) @-}
 witnessGen :: forall p. (Eq p, Fractional p) => Int
            -> [LAss p Int] -> LDSL p Int -> NameValuation p
            -> Maybe (WireValuation p)
 witnessGen m st e ρ = case witnessGenAs m ρ M.empty st of
+  Nothing -> Nothing
   Just σ -> witnessGenE m ρ σ e
 
 {-@ reflect witnessGenE @-}
