@@ -39,7 +39,7 @@ import Language.Haskell.Liquid.ProofCombinators
              -> ρ:NameValuation p
              -> σ:WireValuation p m
              -> {e:TypedLDSL p (Btwn 0 m) | wfE e && freshE e σ}
-             -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e}
+             -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e}
              -> { coherentE m e σ' } @-}
 wgSoundE :: (Ord p, Fractional p)
          => Int -> NameValuation p -> WireValuation p -> LDSL p Int

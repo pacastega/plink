@@ -53,7 +53,7 @@ import Language.Haskell.Liquid.ProofCombinators
 
                      -> v:{DSLValue p | eval e ρ = Just v}
 
-                     -> (σ::{σ:WireValuation p m1 | Just σ = witnessGenE' m ρ σ0 e'
+                     -> (σ::{σ:WireValuation p m1 | Just σ = witnessGenE m ρ σ0 e'
                                                 && closedExpr m σ e'
                                                 && coherentE m e' σ
                                                 && evalWire m e' σ = v
@@ -94,7 +94,7 @@ fundamentalThmE1 m0 e ρ m1 m λ0 σ0 π e' λ v =
                      -> λ:{LabelEnv p (Btwn 0 m1) |
                               labelA a m0 λ0 = (m1, a', λ)}
 
-                     -> (σ::{σ:WireValuation p m1 | Just σ = witnessGenA' m ρ σ0 a'
+                     -> (σ::{σ:WireValuation p m1 | Just σ = witnessGenA m ρ σ0 a'
                                                 && coherentA m a' σ
                                                 && M.keysSet σ =
                                                    S.union (M.keysSet σ0) (wiresA a')},

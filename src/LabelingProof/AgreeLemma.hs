@@ -50,7 +50,7 @@ import Language.Haskell.Liquid.ProofCombinators
           -> λ':LabelEnv p (Btwn 0 m)
           -> e':{TypedLDSL p (Btwn 0 m) | freshE e' σ && wfE e'
                                && labelE (UN op p1) m0 λ = (m, e', λ')}
-          -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'}
+          -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e'}
 
           -> Agree λ' ρ σ'
            / [size (UN op p1), 0] @-}
@@ -128,7 +128,7 @@ auxUn m0 m p1 op ρ λ σ π λ' e' σ' x =
            -> λ':LabelEnv p (Btwn 0 m)
            -> e':{TypedLDSL p (Btwn 0 m) | freshE e' σ && wfE e'
                             && labelE (BIN op p1 p2) m0 λ = (m, e', λ')}
-           -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'}
+           -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e'}
 
            -> Agree λ' ρ σ'
             / [size (BIN op p1 p2), 0] @-}
@@ -215,7 +215,7 @@ auxBin m0 m p1 p2 op ρ λ σ π λ' e' σ' x =
             -> λ':LabelEnv p (Btwn 0 m)
             -> e':{TypedLDSL p (Btwn 0 m) | freshE e' σ && wfE e'
                              && labelE (CONS p1 p2) m0 λ = (m, e', λ')}
-            -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'}
+            -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e'}
 
             -> Agree λ' ρ σ'
              / [size (CONS p1 p2), 0] @-}
@@ -268,7 +268,7 @@ auxCons m0 m p1 p2 ρ λ σ π λ' e' σ' x =
                -> λ':LabelEnv p (Btwn 0 m)
                -> e':{LDSL p (Btwn 0 m) | freshE e' σ && wfE e'
                                        && labelE e m0 λ = (m, e', λ')}
-               -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'}
+               -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e'}
 
                -> Agree λ' ρ σ'
                / [size e, 1] @-}

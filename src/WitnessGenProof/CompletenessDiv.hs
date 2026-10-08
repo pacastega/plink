@@ -56,12 +56,12 @@ import Language.Haskell.Liquid.ProofCombinators
 
                   -> w:Btwn 0 m -> i:{Btwn 0 m | e' = LDIV e1' e2' w i}
 
-                  -> σ1:{WireValuation p m | Just σ1 = witnessGenE' m ρ σ e1'
+                  -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ e1'
                                           && evalWire m e1' σ1 = VF v1}
-                  -> σ2:{WireValuation p m | Just σ2 = witnessGenE' m ρ σ1 e2'
+                  -> σ2:{WireValuation p m | Just σ2 = witnessGenE m ρ σ1 e2'
                                           && evalWire m e2' σ2 = VF v2}
 
-                  -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
+                  -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e'
                                           && evalWire m e' σ' = VF v } @-}
 wgCompleteDiv :: (Fractional p, Ord p)
               => Int -> DSL p -> DSL p -> DSL p

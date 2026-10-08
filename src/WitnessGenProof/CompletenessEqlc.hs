@@ -52,10 +52,10 @@ import Language.Haskell.Liquid.ProofCombinators
 
                    -> w:Btwn 0 m -> i:{Btwn 0 m | e' = LEQLC e1' k w i}
 
-                   -> σ1:{WireValuation p m | Just σ1 = witnessGenE' m ρ σ e1'
+                   -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ e1'
                                            && evalWire m e1' σ1 = VF v1}
 
-                   -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
+                   -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e'
                                            && evalWire m e' σ' = VF v } @-}
 wgCompleteEqlc :: (Fractional p, Ord p)
                => Int -> DSL p -> p -> DSL p
@@ -119,10 +119,10 @@ evalIsk e1 k ρ v v1 = case eval (UN (EQLC k) e1) ρ of
 
                   -> w:Btwn 0 m -> i:{Btwn 0 m | e' = LEQLC e1' 0 w i}
 
-                  -> σ1:{WireValuation p m | Just σ1 = witnessGenE' m ρ σ e1'
+                  -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ e1'
                                           && evalWire m e1' σ1 = VF v1}
 
-                  -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
+                  -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e'
                                           && evalWire m e' σ' = VF v } @-}
 wgCompleteIs0 :: (Fractional p, Ord p)
               => Int -> DSL p -> DSL p

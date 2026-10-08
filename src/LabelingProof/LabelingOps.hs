@@ -37,8 +37,8 @@ import Language.Haskell.Liquid.ProofCombinators
                   -> λ':LabelEnv p (Btwn 0 m)
                   -> p1':{LDSL p (Btwn 0 m1) | labelE p1 m0 λ = (m1, p1', λ1)}
                   -> e':{LDSL p (Btwn 0 m) | labelE (UN op p1) m0 λ = (m, e', λ')}
-                  -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'}
-                  -> σ1:{WireValuation p m | Just σ1 = witnessGenE' m ρ σ p1'}
+                  -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e'}
+                  -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ p1'}
 
                   -> Agree λ1 ρ σ1
 
@@ -87,9 +87,9 @@ agreeLemmaUn m0 m1 m p1 op ρ λ λ1 σ λ' p1' e' σ' σ1 π1 =
                   -> p2':{LDSL p (Btwn 0 m2) | labelE p2 m1 λ1 = (m2, p2', λ2)}
 
                   -> e':{LDSL p (Btwn 0 m) | labelE (BIN op p1 p2) m0 λ = (m, e', λ')}
-                  -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ  e'}
-                  -> σ1:{WireValuation p m | Just σ1 = witnessGenE' m ρ σ  p1'}
-                  -> σ2:{WireValuation p m | Just σ2 = witnessGenE' m ρ σ1 p2'}
+                  -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ  e'}
+                  -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ  p1'}
+                  -> σ2:{WireValuation p m | Just σ2 = witnessGenE m ρ σ1 p2'}
 
                   -> Agree λ2 ρ σ2
 

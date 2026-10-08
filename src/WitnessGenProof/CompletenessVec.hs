@@ -40,7 +40,7 @@ import Language.Haskell.Liquid.ProofCombinators
                   -> e':{LDSL p (Btwn 0 m) | wfE e' && freshE e' σ}
                   -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
-                  -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
+                  -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e'
                                           && evalWire m e' σ' = v } @-}
 wgCompleteNil :: (Fractional p, Ord p)
               => Int -> Ty -> DSL p
@@ -74,12 +74,12 @@ wgCompleteNil m0 τ e ρ v λ σ m e' λ' = σ
                    -> e':{LDSL p (Btwn 0 m) | wfE e' && freshE e' σ}
                    -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
-                   -> σ1:{WireValuation p m | Just σ1 = witnessGenE' m ρ σ e1'
+                   -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ e1'
                                            && evalWire m e1' σ1 = v1}
-                   -> σ2:{WireValuation p m | Just σ2 = witnessGenE' m ρ σ1 e2'
+                   -> σ2:{WireValuation p m | Just σ2 = witnessGenE m ρ σ1 e2'
                                            && evalWire m e2' σ2 = v2}
 
-                   -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
+                   -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e'
                                            && evalWire m e' σ' = v } @-}
 wgCompleteCons :: (Fractional p, Ord p)
                => Int -> DSL p -> DSL p -> DSL p

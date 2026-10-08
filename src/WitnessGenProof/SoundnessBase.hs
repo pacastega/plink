@@ -28,7 +28,7 @@ import Language.Haskell.Liquid.ProofCombinators
 
                 -> τ:ScalarTy -> {i:Btwn 0 m | freshE (PTR τ i) σ}
 
-                -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ (PTR τ i)}
+                -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ (PTR τ i)}
                 -> { coherentE m (PTR τ i) σ' } @-}
 wgSoundWire :: (Eq p, Fractional p)
             => Int -> NameValuation p -> WireValuation p
@@ -43,7 +43,7 @@ wgSoundWire m ρ σ τ i σ' = trivial
 
                -> s:Var -> τ:ScalarTy -> {i:Btwn 0 m | freshE (LVAR s τ i) σ}
 
-               -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ (LVAR s τ i)}
+               -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ (LVAR s τ i)}
                -> { coherentE m (LVAR s τ i) σ' } @-}
 wgSoundVar :: (Eq p, Fractional p)
            => Int -> NameValuation p -> WireValuation p
@@ -58,7 +58,7 @@ wgSoundVar m ρ σ s τ i σ' = case τ of TF -> trivial; TBool -> trivial
 
                  -> x:p -> {i:Btwn 0 m | freshE (LCONST x i) σ}
 
-                 -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ (LCONST x i)}
+                 -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ (LCONST x i)}
                  -> { coherentE m (LCONST x i) σ' } @-}
 wgSoundConst :: (Eq p, Fractional p)
              => Int -> NameValuation p -> WireValuation p
@@ -73,7 +73,7 @@ wgSoundConst m ρ σ x i σ' = trivial
 
                 -> b:Bool -> {i:Btwn 0 m | freshE (LBOOL b i) σ}
 
-                -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ (LBOOL b i)}
+                -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ (LBOOL b i)}
                 -> { coherentE m (LBOOL b i) σ' } @-}
 wgSoundBool     :: (Eq p, Fractional p)
             => Int -> NameValuation p -> WireValuation p

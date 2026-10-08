@@ -49,10 +49,10 @@ import Language.Haskell.Liquid.ProofCombinators
 
                  -> i:{Btwn 0 m | e' = LUN op e1' i}
 
-                 -> σ1:{WireValuation p m | Just σ1 = witnessGenE' m ρ σ e1'
+                 -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ e1'
                                          && evalWire m e1' σ1 = VF v1}
 
-                 -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
+                 -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e'
                                          && evalWire m e' σ' = VF v } @-}
 wgCompleteUn :: (Fractional p, Ord p)
              => Int -> UnOp p -> DSL p -> DSL p
@@ -104,12 +104,12 @@ wgCompleteUn m0 op e1 e ρ v1 v λ σ m1 e1' λ1 m e' λ' i σ1 =
 
                   -> i:{Btwn 0 m | e' = LBIN op e1' e2' i}
 
-                  -> σ1:{WireValuation p m | Just σ1 = witnessGenE' m ρ σ e1'
+                  -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ e1'
                                           && evalWire m e1' σ1 = VF v1}
-                  -> σ2:{WireValuation p m | Just σ2 = witnessGenE' m ρ σ1 e2'
+                  -> σ2:{WireValuation p m | Just σ2 = witnessGenE m ρ σ1 e2'
                                           && evalWire m e2' σ2 = VF v2}
 
-                  -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
+                  -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e'
                                           && evalWire m e' σ' = VF v } @-}
 wgCompleteBin :: (Fractional p, Ord p)
               => Int -> BinOp p -> DSL p -> DSL p -> DSL p

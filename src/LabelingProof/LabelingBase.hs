@@ -37,7 +37,7 @@ import Language.Haskell.Liquid.ProofCombinators
 
                   -> λ':LabelEnv p (Btwn 0 m)
                   -> e':{LDSL p (Btwn 0 m) | labelE (VAR s τ) m0 λ = (m, e', λ')}
-                  -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'}
+                  -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e'}
 
                   -> Agree λ' ρ σ' @-}
 agreeLemmaVar :: (Fractional p, Eq p, Ord p)
@@ -74,7 +74,7 @@ agreeLemmaVar m0 m s τ ρ λ σ π λ' e' σ' = case M.lookup s λ of
 
                     -> λ':LabelEnv p (Btwn 0 m)
                     -> e':{LDSL p (Btwn 0 m) | labelE (CONST k) m0 λ = (m, e', λ')}
-                    -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'}
+                    -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e'}
 
                     -> Agree λ' ρ σ' @-}
 agreeLemmaConst :: (Fractional p, Eq p, Ord p)
@@ -103,7 +103,7 @@ agreeLemmaConst m0 m k ρ λ σ π λ' e' σ' x = π x ? notElemLemma x (outputW
 
                    -> λ':LabelEnv p (Btwn 0 m)
                    -> e':{LDSL p (Btwn 0 m) | labelE (BOOL b) m0 λ = (m, e', λ')}
-                   -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'}
+                   -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e'}
 
                    -> Agree λ' ρ σ' @-}
 agreeLemmaBool :: (Fractional p, Eq p, Ord p)

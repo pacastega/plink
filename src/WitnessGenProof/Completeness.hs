@@ -52,7 +52,7 @@ import Language.Haskell.Liquid.ProofCombinators
           -> e':{LDSL p (Btwn 0 m) | freshE e' σ && wfE e'}
           -> λ':{LabelEnv p (Btwn 0 m) | labelE (UN op e1) m0 λ = (m, e', λ')}
 
-          -> { σ':WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
+          -> { σ':WireValuation p m | Just σ' = witnessGenE m ρ σ e'
                                    && evalWire m e' σ' = v }
            / [size (UN op e1), 0] @-}
 auxUn :: (Fractional p, Ord p) => Int -> DSL p -> UnOp p
@@ -171,7 +171,7 @@ auxUn m0 e1 op ρ v λ σ π m e' λ' = case op of
            -> e':{LDSL p (Btwn 0 m) | freshE e' σ && wfE e'}
            -> λ':{LabelEnv p (Btwn 0 m) | labelE (BIN op e1 e2) m0 λ = (m, e', λ')}
 
-           -> { σ':WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
+           -> { σ':WireValuation p m | Just σ' = witnessGenE m ρ σ e'
                                     && evalWire m e' σ' = v }
             / [size (BIN op e1 e2), 0] @-}
 auxBin :: (Fractional p, Ord p) => Int -> DSL p -> DSL p -> BinOp p
@@ -308,7 +308,7 @@ auxBin m0 e1 e2 op ρ v λ σ π m e' λ' = case op of
             -> e':{LDSL p (Btwn 0 m) | freshE e' σ && wfE e'}
             -> λ':{LabelEnv p (Btwn 0 m) | labelE (CONS e1 e2) m0 λ = (m, e', λ')}
 
-            -> { σ':WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
+            -> { σ':WireValuation p m | Just σ' = witnessGenE m ρ σ e'
                                      && evalWire m e' σ' = v }
              / [size (CONS e1 e2), 0] @-}
 auxCons :: (Fractional p, Ord p) => Int -> DSL p -> DSL p
@@ -370,7 +370,7 @@ auxCons m0 e1 e2 ρ v λ σ π m e' λ' = σ' where
                 -> e':{LDSL p (Btwn 0 m) | freshE e' σ && wfE e'}
                 -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
-                -> { σ':WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
+                -> { σ':WireValuation p m | Just σ' = witnessGenE m ρ σ e'
                                          && evalWire m e' σ' = v}
                  / [size e, 1] @-}
 wgCompleteE :: (Fractional p, Ord p) => Int -> DSL p

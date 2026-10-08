@@ -83,19 +83,19 @@ witnessGenStar m ρ σ programs@(p:ps) = case witnessGen' m ρ σ p of
 witnessGen' :: (Eq p, Fractional p) => Int
             -> NameValuation p -> WireValuation p -> LProg p Int
             -> Maybe (WireValuation p)
-witnessGen' m ρ σ (LExpr e) = freshE e σ ?? witnessGenE' m ρ σ e
-witnessGen' m ρ σ (LAss a) = freshA a σ ?? witnessGenA' m ρ σ a
+witnessGen' m ρ σ (LExpr e) = freshE e σ ?? witnessGenE m ρ σ e
+witnessGen' m ρ σ (LAss a) = freshA a σ ?? witnessGenA m ρ σ a
 
-{-@ reflect witnessGenE' @-}
-{-@ witnessGenE' :: m:Nat
-                 -> NameValuation p -> σ:WireValuation p m
-                 -> {e:TypedLDSL p (Btwn 0 m) | wfE e && freshE e σ}
-                 -> Maybe ({σ':WireValuation p m | closedExpr m σ' e &&
-                             M.keysSet σ' = S.union (M.keysSet σ) (wiresE e)}) @-}
-witnessGenE' :: (Eq p, Fractional p) => Int
-             -> NameValuation p -> WireValuation p -> LDSL p Int
-             -> Maybe (WireValuation p)
-witnessGenE' m ρ σ e = case e of
+{-@ reflect witnessGenE @-}
+{-@ witnessGenE :: m:Nat
+                -> NameValuation p -> σ:WireValuation p m
+                -> {e:TypedLDSL p (Btwn 0 m) | wfE e && freshE e σ}
+                -> Maybe ({σ':WireValuation p m | closedExpr m σ' e &&
+                            M.keysSet σ' = S.union (M.keysSet σ) (wiresE e)}) @-}
+witnessGenE :: (Eq p, Fractional p) => Int
+            -> NameValuation p -> WireValuation p -> LDSL p Int
+            -> Maybe (WireValuation p)
+witnessGenE m ρ σ e = case e of
   PTR τ i -> case M.lookup i σ of
     Nothing -> Nothing -- wire hasn't appeared before
     Just value -> keyLemma i value σ ?? case τ of
@@ -110,29 +110,29 @@ witnessGenE' m ρ σ e = case e of
       TBool -> if boolean value then Just (M.insert i value σ) else Nothing
   LCONST x i -> Just (M.insert i x σ)
   LBOOL  b i -> Just (M.insert i (if b then 1 else 0) σ)
-  LDIV p1 p2 w i -> case witnessGenE' m ρ σ p1 of
+  LDIV p1 p2 w i -> case witnessGenE m ρ σ p1 of
     Nothing -> Nothing
-    Just σ1 -> case witnessGenE' m ρ σ1 p2 of
+    Just σ1 -> case witnessGenE m ρ σ1 p2 of
       Nothing -> Nothing
       Just σ2 -> if x2 == 0 then Nothing else
                    let σ3 = M.insert i (x1 / x2) σ2
                    in Just (M.insert w (1 / x2) σ3)
         where x1 = M.lookup' (outputWire p1) σ1
               x2 = M.lookup' (outputWire p2) σ2
-  LUN op p1 i -> case witnessGenE' m ρ σ p1 of
+  LUN op p1 i -> case witnessGenE m ρ σ p1 of
     Nothing -> Nothing
     Just σ1 -> Just (M.insert i (valueUnOp op x1) σ1)
       where x1 = M.lookup' (outputWire p1) σ1
-  LBIN op p1 p2 i -> case witnessGenE' m ρ σ p1 of
+  LBIN op p1 p2 i -> case witnessGenE m ρ σ p1 of
     Nothing -> Nothing
-    Just σ1 -> case witnessGenE' m ρ σ1 p2 of
+    Just σ1 -> case witnessGenE m ρ σ1 p2 of
       Nothing -> Nothing
       Just σ2 -> Just (M.insert i (valueBinOp op x1 x2) σ2)
         where x1 = M.lookup' (outputWire p1) σ1
               x2 = M.lookup' (outputWire p2) σ2
 
-  LBoolToF p1 -> witnessGenE' m ρ σ p1
-  LEQLC p1 k w i -> case witnessGenE' m ρ σ p1 of
+  LBoolToF p1 -> witnessGenE m ρ σ p1
+  LEQLC p1 k w i -> case witnessGenE m ρ σ p1 of
     Nothing -> Nothing
     Just σ1 -> Just (M.insert i value (M.insert w witness σ1))
       where x1 = M.lookup' (outputWire p1) σ1
@@ -140,41 +140,41 @@ witnessGenE' m ρ σ e = case e of
             witness = if x1 == k then zero else 1/(x1-k)
 
   LNIL _ -> Just σ
-  LCONS p1 p2 -> case witnessGenE' m ρ σ p1 of
+  LCONS p1 p2 -> case witnessGenE m ρ σ p1 of
     Nothing -> Nothing
-    Just σ1 -> witnessGenE' m ρ σ1 p2
+    Just σ1 -> witnessGenE m ρ σ1 p2
 
-{-@ reflect witnessGenA' @-}
-{-@ witnessGenA' :: m:Nat
-                 -> NameValuation p -> σ:WireValuation p m
-                 -> {a:LAss p (Btwn 0 m) | wfA a && freshA a σ}
-                 -> Maybe ({σ':WireValuation p m | closedAssertion m σ' a &&
-                             M.keysSet σ' = S.union (M.keysSet σ) (wiresA a)}) @-}
-witnessGenA' :: (Eq p, Fractional p) => Int
-             -> NameValuation p -> WireValuation p -> LAss p Int
-             -> Maybe (WireValuation p)
-witnessGenA' m ρ σ a = case a of
-  LNZERO p1 w -> scalar' p1 ?? case witnessGenE' m ρ σ p1 of
+{-@ reflect witnessGenA @-}
+{-@ witnessGenA :: m:Nat
+                -> NameValuation p -> σ:WireValuation p m
+                -> {a:LAss p (Btwn 0 m) | wfA a && freshA a σ}
+                -> Maybe ({σ':WireValuation p m | closedAssertion m σ' a &&
+                            M.keysSet σ' = S.union (M.keysSet σ) (wiresA a)}) @-}
+witnessGenA :: (Eq p, Fractional p) => Int
+            -> NameValuation p -> WireValuation p -> LAss p Int
+            -> Maybe (WireValuation p)
+witnessGenA m ρ σ a = case a of
+  LNZERO p1 w -> scalar' p1 ?? case witnessGenE m ρ σ p1 of
     Nothing -> Nothing
     Just σ1 -> if x1 /= 0 then Just (M.insert w (1/x1) σ1) else Nothing
       where x1 = M.lookup' (outputWire p1) σ1
-  LBOOLEAN p1 -> scalar' p1 ?? witnessGenE' m ρ σ p1
-  LEQA p1 p2 -> case scalar' p1 ?? witnessGenE' m ρ σ p1 of
+  LBOOLEAN p1 -> scalar' p1 ?? witnessGenE m ρ σ p1
+  LEQA p1 p2 -> case scalar' p1 ?? witnessGenE m ρ σ p1 of
     Nothing -> Nothing
-    Just σ1 -> scalar' p2 ?? witnessGenE' m ρ σ1 p2
+    Just σ1 -> scalar' p2 ?? witnessGenE m ρ σ1 p2
 
-{-@ reflect witnessGenAStar @-}
-{-@ witnessGenAStar :: m:Nat
-                   -> NameValuation p
-                   -> σ:WireValuation p m
-                   -> as:{[LAss p (Btwn 0 m)] | wfAs as && freshAs as σ}
-                   -> Maybe ({σ':WireValuation p m |
-                               M.keysSet σ' = S.union (M.keysSet σ) (wiresAs as)}) @-}
-witnessGenAStar :: (Eq p, Fractional p) => Int
-               -> NameValuation p -> WireValuation p -> [LAss p Int]
-               -> Maybe (WireValuation p)
-witnessGenAStar m ρ σ store = case store of
+{-@ reflect witnessGenAs @-}
+{-@ witnessGenAs :: m:Nat
+                 -> NameValuation p
+                 -> σ:WireValuation p m
+                 -> as:{[LAss p (Btwn 0 m)] | wfAs as && freshAs as σ}
+                 -> Maybe ({σ':WireValuation p m |
+                             M.keysSet σ' = S.union (M.keysSet σ) (wiresAs as)}) @-}
+witnessGenAs :: (Eq p, Fractional p) => Int
+             -> NameValuation p -> WireValuation p -> [LAss p Int]
+             -> Maybe (WireValuation p)
+witnessGenAs m ρ σ store = case store of
   [] -> Just σ
-  a':as' -> case witnessGenA' m ρ σ a' of
+  a':as' -> case witnessGenA m ρ σ a' of
     Nothing -> Nothing
-    Just σ' -> witnessGenAStar m ρ σ' as'
+    Just σ' -> witnessGenAs m ρ σ' as'
