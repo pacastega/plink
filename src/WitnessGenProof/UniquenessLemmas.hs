@@ -115,7 +115,7 @@ labelEElems :: (Ord p, Fractional p) => DSL p -> Int -> LabelEnv p Int
 labelEElems e m0 λ m e' λ' = case e of
   VAR s τ -> case M.lookup s λ of
     Nothing -> trivial
-    Just j -> elementLemma2 s j λ -- ? liquidAssert (S.member j (elemsSet λ))
+    Just j -> elementLemma s j λ
   CONST _ -> trivial
   BOOL  _ -> trivial
 

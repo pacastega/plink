@@ -41,7 +41,7 @@ insertIfCompatible :: (Ord k, Eq v) => k -> v -> M.Map k v -> Maybe (M.Map k v)
 insertIfCompatible k v m = case M.lookup k m of
   Nothing -> Just (M.insert k v m) -- if k ∉ m, add it
   Just v' -> if v == v'            -- m[k] == v already, do nothing
-                then elementLemma k v m ?? Just m
+                then keyLemma k v m ?? Just m
                 else Nothing       -- m[k] is some other value, abort
 
 {-@ lookupInsertIC :: key:k -> val:v -> m:M.Map k v

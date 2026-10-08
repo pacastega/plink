@@ -15,11 +15,11 @@ import Language.Haskell.Liquid.ProofCombinators
 import qualified Liquid.Data.Map as M
 
 -- if lookup returns Just, then the key is in the set of keys
-{-@ reflect elementLemma @-}
-{-@ elementLemma :: key:k -> val:v -> {m:M.Map k v | M.lookup key m == Just val}
-                 -> { M.member key m } @-}
-elementLemma :: Ord k => k -> v -> M.Map k v -> Proof
-elementLemma k v (M.MBin k' _ m) = if k == k' then () else elementLemma k v m
+{-@ reflect keyLemma @-}
+{-@ keyLemma :: key:k -> val:v -> {m:M.Map k v | M.lookup key m == Just val}
+             -> { M.member key m } @-}
+keyLemma :: Ord k => k -> v -> M.Map k v -> Proof
+keyLemma k v (M.MBin k' _ m) = if k == k' then () else keyLemma k v m
 
 -- a value larger than all set elements will never be returned by lookup
 {-@ notElemLemma :: key:k -> n:Int -> m:{M.Map k (Btwn 0 n) | M.member key m}
@@ -39,11 +39,11 @@ elemsSet :: (Ord v) => M.Map k v -> S.Set v
 elemsSet M.MTip = S.empty
 elemsSet (M.MBin _ v m) = S.singleton v `S.union` elemsSet m
 
-{-@ elementLemma2 :: key:k -> val:v -> m:{M.Map k v | M.lookup key m = Just val}
-                  -> { S.member val (elemsSet m) } @-}
-elementLemma2 :: Ord k => k -> v -> M.Map k v -> Proof
-elementLemma2 k v (M.MBin k' v' m') =
-  if k == k' then trivial else elementLemma2 k v m'
+{-@ elementLemma :: key:k -> val:v -> m:{M.Map k v | M.lookup key m = Just val}
+                 -> { S.member val (elemsSet m) } @-}
+elementLemma :: Ord k => k -> v -> M.Map k v -> Proof
+elementLemma k v (M.MBin k' v' m') =
+  if k == k' then trivial else elementLemma k v m'
 
 #else
 
@@ -51,8 +51,8 @@ import qualified Data.Map as M
 
 -- they have no computational value, but we do need them to be defined
 
-elementLemma :: k -> v -> M.Map k v -> Proof
-elementLemma _ _ _ = ()
+keyLemma :: k -> v -> M.Map k v -> Proof
+keyLemma _ _ _ = ()
 
 notElemLemma :: k -> Int -> M.Map k Int -> Proof
 notElemLemma _ _ _ = ()
@@ -63,7 +63,7 @@ lookupLemma _ _ = ()
 elemsSet :: (Ord v) => M.Map k v -> S.Set v
 elemsSet m = S.fromList (M.elems m)
 
-elementLemma2 :: Ord k => k -> v -> M.Map k v -> Proof
-elementLemma2 k v m = trivial
+elementLemma :: Ord k => k -> v -> M.Map k v -> Proof
+elementLemma k v m = trivial
 
 #endif

@@ -79,7 +79,7 @@ uniqueVar m0 m' s τ e ρ λ m e' λ' σ π v γ γ' h_boolean =
         TBool -> proof ?? outputWireBool e' γ γ'
               ?? labelEElems e m0 λ m e' λ'
               ?? h_boolean j
-      where proof = elementLemma s j λ
+      where proof = keyLemma s j λ
                  ?? lookupLemma s λ ?? π s ?? lookupLemma j σ
 
 {-@ uniqueConst :: m0:Nat -> m':Nat

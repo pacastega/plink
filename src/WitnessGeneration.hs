@@ -98,7 +98,7 @@ witnessGenE' :: (Eq p, Fractional p) => Int
 witnessGenE' m ρ σ e = case e of
   PTR τ i -> case M.lookup i σ of
     Nothing -> Nothing -- wire hasn't appeared before
-    Just value -> elementLemma i value σ ?? case τ of
+    Just value -> keyLemma i value σ ?? case τ of
       TF -> Just σ -- no restrictions
       TBool -> if boolean value -- Always true, but that's challenging to prove.
                then Just σ -- Leave this just to prove the booleanity invariant.

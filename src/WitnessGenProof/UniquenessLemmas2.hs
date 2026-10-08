@@ -477,7 +477,7 @@ booleanUn1 m0 m' op e1 e λ m e' λ' m1 e1' λ1 γ γ1 γ' σ h_bool j =
   labelTyped e m0 λ m e' λ' ?? case op of
     ISZERO -> case tyEnvE e1' γ of
                 Just γ1 -> case insertIfCompatible w TF γ1 of
-                  Just γw -> elementLemma j TBool γ1
+                  Just γw -> keyLemma j TBool γ1
                           ?? insertICIncr w TF    γ1 γw j -- new
                           ?? insertICIncr i TBool γw γ' j -- new
                           ?? lookupLemma j γ1 ?? lookupLemma j γ'
@@ -486,7 +486,7 @@ booleanUn1 m0 m' op e1 e λ m e' λ' m1 e1' λ1 γ γ1 γ' σ h_bool j =
 
     EQLC k -> case tyEnvE e1' γ of
                 Just γ1 -> case insertIfCompatible w TF γ1 of
-                  Just γw -> elementLemma j TBool γ1
+                  Just γw -> keyLemma j TBool γ1
                           ?? insertICIncr w TF    γ1 γw j -- new
                           ?? insertICIncr i TBool γw γ' j -- new
                           ?? lookupLemma j γ1 ?? lookupLemma j γ'
@@ -497,7 +497,7 @@ booleanUn1 m0 m' op e1 e λ m e' λ' m1 e1' λ1 γ γ1 γ' σ h_bool j =
 
     _   -> case tyEnvE e1' γ of
              Just γ1 -> case inferType' e' of
-               Just τ -> elementLemma j TBool γ1
+               Just τ -> keyLemma j TBool γ1
                       ?? insertICIncr i τ γ1 γ' j -- new
                       ?? lookupLemma j γ1 ?? lookupLemma j γ'
                       ?? h_bool j
@@ -550,7 +550,7 @@ booleanBin1 m0 m' op e1 e2 e λ m e' λ' m1 e1' λ1 m2 e2' λ2 γ γ1 γ2 γ' σ
     DIV -> case tyEnvE e1' γ of
              Just γ1 -> case tyEnvE e2' γ1 of
                Just γ2 -> case insertIfCompatible w TF γ2 of
-                 Just γw -> elementLemma j TBool γ1
+                 Just γw -> keyLemma j TBool γ1
                          ?? insertICIncr w TF γ2 γw j
                          ?? tyEnvEIncr e2' γ1 γ2 j
                          ?? lookupLemma j γ1 ?? lookupLemma j γ2
@@ -562,7 +562,7 @@ booleanBin1 m0 m' op e1 e2 e λ m e' λ' m1 e1' λ1 m2 e2' λ2 γ γ1 γ2 γ' σ
              Just γ1 -> case tyEnvE e2' γ1 of
                Just γ2 -> case insertIfCompatible d TF γ2 of
                  Just γd -> case insertIfCompatible w TF γd of
-                   Just γw -> elementLemma j TBool γ1
+                   Just γw -> keyLemma j TBool γ1
                            ?? insertICIncr d TF γ2 γd j
                            ?? insertICIncr w TF γd γw j
                            ?? tyEnvEIncr e2' γ1 γ2 j
@@ -573,7 +573,7 @@ booleanBin1 m0 m' op e1 e2 e λ m e' λ' m1 e1' λ1 m2 e2' λ2 γ γ1 γ2 γ' σ
 
     _   -> case tyEnvE e1' γ of
              Just γ1 -> case tyEnvE e2' γ1 of
-               Just γ2 -> elementLemma j TBool γ1
+               Just γ2 -> keyLemma j TBool γ1
                        ?? tyEnvEIncr e2' γ1 γ2 j
                        ?? lookupLemma j γ1 ?? lookupLemma j γ2
                        ?? labelEElems e2 m1 λ1 m2 e2' λ2
@@ -627,7 +627,7 @@ booleanBin2 m0 m' op e1 e2 e λ m e' λ' m1 e1' λ1 m2 e2' λ2 γ γ1 γ2 γ' σ
     DIV -> case tyEnvE e1' γ of
       Just γ1 -> case tyEnvE e2' γ1 of
         Just γ2 -> case insertIfCompatible w TF γ2 of
-          Just γw -> elementLemma j TBool γ2
+          Just γw -> keyLemma j TBool γ2
                   ?? insertICIncr w TF γ2 γw j
                   ?? insertICIncr i TF γw γ' j
                   ?? lookupLemma j γ2 ?? lookupLemma j γ'
@@ -638,7 +638,7 @@ booleanBin2 m0 m' op e1 e2 e λ m e' λ' m1 e1' λ1 m2 e2' λ2 γ γ1 γ2 γ' σ
       Just γ1 -> case tyEnvE e2' γ1 of
         Just γ2 -> case insertIfCompatible d TF γ2 of
           Just γd -> case insertIfCompatible w TF γd of
-            Just γw -> elementLemma j TBool γ2
+            Just γw -> keyLemma j TBool γ2
                     ?? insertICIncr d TF    γ2 γd j
                     ?? insertICIncr w TF    γd γw j
                     ?? insertICIncr i TBool γw γ' j
@@ -649,7 +649,7 @@ booleanBin2 m0 m' op e1 e2 e λ m e' λ' m1 e1' λ1 m2 e2' λ2 γ γ1 γ2 γ' σ
     _ -> case tyEnvE e1' γ of
       Just γ1 -> case tyEnvE e2' γ1 of
         Just γ2 -> case inferType' e' of
-          Just τ -> elementLemma j TBool γ2
+          Just τ -> keyLemma j TBool γ2
                  ?? insertICIncr i τ γ2 γ' j
                  ?? lookupLemma j γ2 ?? lookupLemma j γ'
                  ?? h_bool j
@@ -700,7 +700,7 @@ booleanCons1 m0 m' e1 e2 e λ m e' λ' m1 e1' λ1 m2 e2' λ2 γ γ1 γ2 γ' σ h
   labelTyped e m0 λ m e' λ' ??
     case tyEnvE e1' γ of
       Just γ1 -> case tyEnvE e2' γ1 of
-        Just γ2 -> elementLemma j TBool γ1
+        Just γ2 -> keyLemma j TBool γ1
                 ?? tyEnvEIncr e2' γ1 γ2 j
                 ?? lookupLemma j γ1 ?? lookupLemma j γ2
                 ?? labelEElems e2 m1 λ1 m2 e2' λ2
@@ -752,7 +752,7 @@ booleanCons2 m0 m' e1 e2 e λ m e' λ' m1 e1' λ1 m2 e2' λ2 γ γ1 γ2 γ' σ h
     labelTyped e m0 λ m e' λ' ??
     case tyEnvE e1' γ of
       Just γ1 -> case tyEnvE e2' γ1 of
-        Just γ2 -> elementLemma j TBool γ2
+        Just γ2 -> keyLemma j TBool γ2
                 ?? lookupLemma j γ2 ?? lookupLemma j γ'
                 ?? h_bool j
 

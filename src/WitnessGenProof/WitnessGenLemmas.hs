@@ -76,7 +76,7 @@ wgALemma m m' ρ σ0 a = case a of
 wgBoolean :: (Eq p, Fractional p) => Int -> NameValuation p -> WireValuation p
           -> LDSL p Int -> WireValuation p -> Proof
 wgBoolean m ρ σ e σ' = case e of
-  PTR τ i -> elementLemma i value σ ? lookupLemma i σ
+  PTR τ i -> keyLemma i value σ ? lookupLemma i σ
            ? witnessGenE' m ρ σ (PTR τ i)
     where value = case M.lookup i σ of Just v -> v
   LVAR _ _ i -> trivial

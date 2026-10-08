@@ -222,7 +222,7 @@ fundamentalThmA2 m0 a ρ m1 m λ0 a' λ σ π γ0 γ h_bool = case a of
     {-@ h_bool1 :: j:{Btwn 0 m1 | S.member j (elemsSet λ)
                               && M.lookup j γ1 = Just TBool}
                 -> { boolean (M.lookup' j σ) } @-}
-    h_bool1 j = elementLemma j TBool γ1  -- j ∈ γ1
+    h_bool1 j = keyLemma j TBool γ1      -- j ∈ γ1
               ? lookupLemma j γ1         -- lookup γ1 j == Just (γ1[j])
               ? insertICIncr w TF γ1 γ j -- γ[j] == γ1[j]
               ? lookupLemma j γ          -- lookup γ j == Just (γ[j])
@@ -268,10 +268,10 @@ fundamentalThmA2 m0 a ρ m1 m λ0 a' λ σ π γ0 γ h_bool = case a of
     {-@ h_bool1 :: j:{Btwn 0 me1 | S.member j (elemsSet λ1)
                               && M.lookup j γ1 = Just TBool}
                 -> { boolean (M.lookup' j σ) } @-}
-    h_bool1 j = elementLemma j  TBool γ1 -- j ∈ γ1
-             ?? lookupLemma j γ1         -- lookup γ1 j == Just (γ1[j])
-             ?? tyEnvEIncr e2' γ1 γ j    -- γ[j] == γ1[j]
-             ?? lookupLemma j γ          -- lookup γ j == Just (γ[j])
+    h_bool1 j = keyLemma j  TBool γ1  -- j ∈ γ1
+             ?? lookupLemma j γ1      -- lookup γ1 j == Just (γ1[j])
+             ?? tyEnvEIncr e2' γ1 γ j -- γ[j] == γ1[j]
+             ?? lookupLemma j γ       -- lookup γ j == Just (γ[j])
              ?? labelEElems e2 me1 λ1 me2 e2' λ
              ?? h_bool j
 

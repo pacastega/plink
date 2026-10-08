@@ -92,9 +92,9 @@ compileProofE m e γ γ' σ ws π = case e of
             {-@ π1 :: j:{Btwn 0 m | S.member j ws
                                  && M.lookup j γ1 = Just TBool}
                            -> { boolean (M.lookup' j σ) } @-}
-            π1 j = elementLemma j TBool γ1   -- j ∈ γ1
+            π1 j = keyLemma j TBool γ1       -- j ∈ γ1
                 ?? lookupLemma j γ1          -- γ1[j] = TBool
-                ?? tyEnvEIncr e2 γ1 γ2 j    -- γ2[j] = γ1[j] since γ2 ≥ γ1
+                ?? tyEnvEIncr e2 γ1 γ2 j     -- γ2[j] = γ1[j] since γ2 ≥ γ1
                 ?? insertICIncr w TF γ2 γw j -- γw[j] = γ2[j] since γw ≥ γ2
                 ?? insertICIncr i TF γw γ' j -- γ'[j] = γ2[j] since γ' ≥ γ2
                 ?? lookupLemma j γ'          -- M.lookup j γ' = Just γ'[j]
@@ -103,8 +103,8 @@ compileProofE m e γ γ' σ ws π = case e of
             {-@ π2 :: j:{Btwn 0 m | S.member j (S.union ws (wiresE e1))
                                  && M.lookup j γ2 = Just TBool}
                            -> { coherentE m e1 σ => boolean (M.lookup' j σ) } @-}
-            π2 j = elementLemma j TBool γ2 -- j ∈ γ2
-                ?? lookupLemma j γ2        -- γ2[j] = TBool
+            π2 j = keyLemma j TBool γ2 -- j ∈ γ2
+                ?? lookupLemma j γ2    -- γ2[j] = TBool
 
                 ?? if S.member j ws -- j ∈ ws ∪ wires(e1); which one is it?
                    -- if j ∈ ws
@@ -136,7 +136,7 @@ compileProofE m e γ γ' σ ws π = case e of
         {-@ π1 :: j:{Btwn 0 m | S.member j ws
                              && M.lookup j γ1 = Just TBool}
                        -> { boolean (M.lookup' j σ) } @-}
-        π1 j = elementLemma j TBool γ1  -- j ∈ γ1
+        π1 j = keyLemma j TBool γ1      -- j ∈ γ1
             ?? lookupLemma j γ1         -- γ1[j] = TBool
             ?? insertICIncr i τ γ1 γ' j -- γ'[j] = γ1[j] since γ' ≥ γ1
             ?? lookupLemma j γ'         -- M.lookup j γ' = Just γ'[j]
@@ -174,9 +174,9 @@ compileProofE m e γ γ' σ ws π = case e of
           {-@ π1 :: j:{Btwn 0 m | S.member j ws
                                && M.lookup j γ1 = Just TBool}
                          -> { boolean (M.lookup' j σ) } @-}
-          π1 j = elementLemma j TBool γ1  -- j ∈ γ1
+          π1 j = keyLemma j TBool γ1      -- j ∈ γ1
               ?? lookupLemma j γ1         -- γ1[j] = TBool
-              ?? tyEnvEIncr e2 γ1 γ2 j   -- γ2[j] = γ1[j] since γ2 ≥ γ1
+              ?? tyEnvEIncr e2 γ1 γ2 j    -- γ2[j] = γ1[j] since γ2 ≥ γ1
               ?? insertICIncr i τ γ2 γ' j -- γ'[j] = γ2[j] since γ' ≥ γ2
               ?? lookupLemma j γ'         -- M.lookup j γ' = Just γ'[j]
               ?? π j
@@ -184,8 +184,8 @@ compileProofE m e γ γ' σ ws π = case e of
           {-@ π2 :: j:{Btwn 0 m | S.member j (S.union ws (wiresE e1))
                                && M.lookup j γ2 = Just TBool}
                          -> { coherentE m e1 σ => boolean (M.lookup' j σ) } @-}
-          π2 j = elementLemma j TBool γ2 -- j ∈ γ2
-              ?? lookupLemma j γ2        -- γ2[j] = TBool
+          π2 j = keyLemma j TBool γ2 -- j ∈ γ2
+              ?? lookupLemma j γ2    -- γ2[j] = TBool
 
               ?? if S.member j ws -- j ∈ ws ∪ wires(e1); which one is it?
                  -- if j ∈ ws
@@ -208,7 +208,7 @@ compileProofE m e γ γ' σ ws π = case e of
           {-@ π1 :: j:{Btwn 0 m | S.member j ws
                                && M.lookup j γ1 = Just TBool}
                          -> { boolean (M.lookup' j σ) } @-}
-          π1 j = elementLemma j TBool γ1      -- j ∈ γ1
+          π1 j = keyLemma j TBool γ1          -- j ∈ γ1
               ?? lookupLemma j γ1             -- γ1[j] = TBool
               ?? insertICIncr w TF    γ1 γw j -- γw[j] = γ1[j] since γw ≥ γ1
               ?? insertICIncr i TBool γw γ' j -- γ'[j] = γw[j] since γ' ≥ γw
@@ -235,7 +235,7 @@ compileProofE m e γ γ' σ ws π = case e of
         {-@ π1 :: j:{Btwn 0 m | S.member j ws
                              && M.lookup j γ1 = Just TBool}
                        -> { boolean (M.lookup' j σ) } @-}
-        π1 j = elementLemma j TBool γ1
+        π1 j = keyLemma j TBool γ1
             ?? tyEnvEIncr e2 γ1 γ' j
             ?? lookupLemma j γ1 ?? lookupLemma j γ'
             ?? π j
@@ -243,8 +243,8 @@ compileProofE m e γ γ' σ ws π = case e of
         {-@ π2 :: j:{Btwn 0 m | S.member j (S.union ws (wiresE e1))
                              && M.lookup j γ' = Just TBool}
                        -> { coherentE m e1 σ => boolean (M.lookup' j σ) } @-}
-        π2 j = elementLemma j TBool γ' -- j ∈ γ'
-            ?? lookupLemma j γ'        -- γ'[j] = TBool
+        π2 j = keyLemma j TBool γ' -- j ∈ γ'
+            ?? lookupLemma j γ'    -- γ'[j] = TBool
 
             ?? if S.member j ws -- j ∈ ws ∪ wires(e1); which one is it?
                -- if j ∈ ws
