@@ -111,6 +111,28 @@ xorFn b c = b + c - 2*b*c
 eqlFn :: (Num p, Eq p) => p -> p -> p
 eqlFn b c = if b == c then 1 else 0
 
+{-@ reflect holds @-}
+{-@ holds :: a:Assertion p -> NameValuation p -> Bool @-}
+holds :: (Fractional p, Eq p) => Assertion p -> NameValuation p -> Bool
+holds a ρ = case a of
+  NZERO e1 | Just _ <- inferType e1
+           , Just (VF v1) <- eval e1 ρ
+          -> v1 /= 0
+  BOOLEAN e1 | Just _ <- inferType e1
+             , Just (VF v1) <- eval e1 ρ
+            -> boolean v1
+  EQA e1 e2 | Just _ <- inferType e1 , Just _ <- inferType e2
+            , Just (VF v1) <- eval e1 ρ
+            , Just (VF v2) <- eval e2 ρ
+           -> v1 == v2
+  _ -> False
+
+{-@ reflect holdsAll @-}
+{-@ holdsAll :: Store p -> NameValuation p -> Bool @-}
+holdsAll :: (Fractional p, Eq p) => Store p -> NameValuation p -> Bool
+holdsAll [] _ = True
+holdsAll (a:as) ρ = holds a ρ && holdsAll as ρ
+
 
 {-@ reflect evalWire @-}
 {-@ evalWire :: m:Nat -> e:TypedLDSL p (Btwn 0 m)

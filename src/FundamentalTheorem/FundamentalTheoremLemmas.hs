@@ -7,7 +7,6 @@ import Constraints
 import TypeAliases
 import DSL
 import Semantics
-import Semantics2 hiding (foo, barOp)
 import Label
 import WitnessGeneration
 
