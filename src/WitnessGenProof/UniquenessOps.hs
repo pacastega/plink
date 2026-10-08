@@ -44,11 +44,11 @@ import Language.Haskell.Liquid.ProofCombinators
 
              -> m1:{Nat | m0 <= m1}
              -> e1':{TypedLDSL p (Btwn 0 m1) | wfE e1'}
-             -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+             -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
              -> m:{Nat | m0 <= m && m <= m'}
              -> e':{TypedLDSL p (Btwn 0 m) | wfE e'}
-             -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+             -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
              -> {σ:WireValuation p m' | closedExpr m' σ e' && coherentE m' e' σ}
              -> v1:{DSLValue p | evalWire m' e1' σ = v1 && eval e1 ρ = Just v1}
@@ -84,15 +84,15 @@ uniqueUn m0 m' op e1 e ρ λ m1 e1' λ1 m e' λ' σ v1 v =
 
               -> m1:{Nat | m0 <= m1}
               -> e1':{TypedLDSL p (Btwn 0 m1) | wfE e1'}
-              -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+              -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
               -> m2:{Nat | m1 <= m2}
               -> e2':{TypedLDSL p (Btwn 0 m2) | wfE e2'}
-              -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+              -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
               -> m:{Nat | m0 <= m && m <= m'}
               -> e':{TypedLDSL p (Btwn 0 m) | wfE e'}
-              -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+              -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
               -> {σ:WireValuation p m' | closedExpr m' σ e' && coherentE m' e' σ}
               -> v1:{DSLValue p | evalWire m' e1' σ = v1 && eval e1 ρ = Just v1}
@@ -129,15 +129,15 @@ uniqueBin m0 m' op e1 e2 e ρ λ m1 e1' λ1 m2 e2' λ2 m e' λ' σ v1 v2 v =
 
                -> m1:{Nat | m0 <= m1}
                -> e1':{TypedLDSL p (Btwn 0 m1) | wfE e1'}
-               -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+               -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                -> m2:{Nat | m1 <= m2}
                -> e2':{TypedLDSL p (Btwn 0 m2) | wfE e2'}
-               -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+               -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
                -> m:{Nat | m0 <= m && m <= m'}
                -> e':{TypedLDSL p (Btwn 0 m) | wfE e'}
-               -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+               -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                -> {σ:WireValuation p m' | closedExpr m' σ e' && coherentE m' e' σ}
                -> v1:{DSLValue p | evalWire m' e1' σ = v1 && eval e1 ρ = Just v1}

@@ -41,11 +41,11 @@ import Language.Haskell.Liquid.ProofCombinators
 
                  -> m1:{Nat | m1 >= m0}
                  -> e1':LDSL p (Btwn 0 m1)
-                 -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+                 -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                  -> m:{Nat | m >= m1}
                  -> e':{LDSL p (Btwn 0 m) | wfE e' && freshE e' σ}
-                 -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                 -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                  -> i:{Btwn 0 m | e' = LUN op e1' i}
 
@@ -92,15 +92,15 @@ wgCompleteUn m0 op e1 e ρ v1 v λ σ m1 e1' λ1 m e' λ' i σ1 =
 
                   -> m1:{Nat | m1 >= m0}
                   -> e1':LDSL p (Btwn 0 m1)
-                  -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+                  -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                   -> m2:{Nat | m2 >= m1}
                   -> e2':LDSL p (Btwn 0 m2)
-                  -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+                  -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
                   -> m:{Nat | m >= m2}
                   -> e':{LDSL p (Btwn 0 m) | wfE e' && freshE e' σ}
-                  -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                  -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                   -> i:{Btwn 0 m | e' = LBIN op e1' e2' i}
 

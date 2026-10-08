@@ -50,7 +50,7 @@ import Language.Haskell.Liquid.ProofCombinators
 
           -> m:{Nat | m >= m0}
           -> e':{LDSL p (Btwn 0 m) | freshE e' σ && wfE e'}
-          -> λ':{LabelEnv p (Btwn 0 m) | label' (UN op e1) m0 λ = (m, e', λ')}
+          -> λ':{LabelEnv p (Btwn 0 m) | labelE (UN op e1) m0 λ = (m, e', λ')}
 
           -> { σ':WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
                                    && evalWire m e' σ' = v }
@@ -68,7 +68,7 @@ auxUn :: (Fractional p, Ord p) => Int -> DSL p -> UnOp p
       -> WireValuation p
 auxUn m0 e1 op ρ v λ σ π m e' λ' = case op of
   ISZERO  -> σ' where
-    (m1,e1',λ1) = label' e1 m0 λ
+    (m1,e1',λ1) = labelE e1 m0 λ
     v1 = evalUn e1 op ρ v
 
     wf1 = labelWF    e1 m0 λ m1 e1' λ1 -- e1' is well-formed
@@ -91,7 +91,7 @@ auxUn m0 e1 op ρ v λ σ π m e' λ' = case op of
                        m1 e1' λ1 m e' λ' w i σ1
 
   EQLC k  -> σ' where
-    (m1,e1',λ1) = label' e1 m0 λ
+    (m1,e1',λ1) = labelE e1 m0 λ
     v1 = evalUn e1 op ρ v
 
     wf1 = labelWF    e1 m0 λ m1 e1' λ1 -- e1' is well-formed
@@ -114,7 +114,7 @@ auxUn m0 e1 op ρ v λ σ π m e' λ' = case op of
                         m1 e1' λ1 m e' λ' w i σ1
 
   BoolToF -> σ' where
-    (m1,e1',λ1) = label' e1 m0 λ
+    (m1,e1',λ1) = labelE e1 m0 λ
     v1 = evalUn e1 op ρ v
 
     wf1 = labelWF    e1 m0 λ m1 e1' λ1 -- e1' is well-formed
@@ -134,7 +134,7 @@ auxUn m0 e1 op ρ v λ σ π m e' λ' = case op of
       ?? wgCompleteCast m0 e1 (UN BoolToF e1) ρ v1 v' λ σ m1 e1' λ1 m e' λ' σ1
 
   _ -> σ' where
-    (m1,e1',λ1) = label' e1 m0 λ
+    (m1,e1',λ1) = labelE e1 m0 λ
     v1 = evalUn e1 op ρ v
 
     wf1 = labelWF    e1 m0 λ m1 e1' λ1 -- e1' is well-formed
@@ -169,7 +169,7 @@ auxUn m0 e1 op ρ v λ σ π m e' λ' = case op of
 
            -> m:{Nat | m >= m0}
            -> e':{LDSL p (Btwn 0 m) | freshE e' σ && wfE e'}
-           -> λ':{LabelEnv p (Btwn 0 m) | label' (BIN op e1 e2) m0 λ = (m, e', λ')}
+           -> λ':{LabelEnv p (Btwn 0 m) | labelE (BIN op e1 e2) m0 λ = (m, e', λ')}
 
            -> { σ':WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
                                     && evalWire m e' σ' = v }
@@ -187,10 +187,10 @@ auxBin :: (Fractional p, Ord p) => Int -> DSL p -> DSL p -> BinOp p
        -> WireValuation p
 auxBin m0 e1 e2 op ρ v λ σ π m e' λ' = case op of
   DIV -> σ' where
-    (m1,e1',λ1) = label' e1 m0 λ
+    (m1,e1',λ1) = labelE e1 m0 λ
     v1 = evalBin1 e1 e2 op ρ v
 
-    (m2,e2',λ2) = label' e2 m1 λ1
+    (m2,e2',λ2) = labelE e2 m1 λ1
     v2 = evalDiv2 e1 e2 ρ v
 
     wf1 = labelWF    e1 m0 λ m1 e1' λ1 -- e1' is well-formed
@@ -223,10 +223,10 @@ auxBin m0 e1 e2 op ρ v λ σ π m e' λ' = case op of
                        m1 e1' λ1 m2 e2' λ2 m  e'  λ' w i σ1 σ2
 
   EQL -> σ' where
-    (m1,e1',λ1) = label' e1 m0 λ
+    (m1,e1',λ1) = labelE e1 m0 λ
     v1 = evalBin1 e1 e2 op ρ v -- isJust (eval e1 ρ) && isJust (eval e2 ρ)
 
-    (m2,e2',λ2) = label' e2 m1 λ1
+    (m2,e2',λ2) = labelE e2 m1 λ1
     v2 = evalBin2 e1 e2 op ρ v -- isJust (eval e1 ρ) && isJust (eval e2 ρ)
 
     wf1 = labelWF    e1 m0 λ m1 e1' λ1 -- e1' is well-formed
@@ -259,10 +259,10 @@ auxBin m0 e1 e2 op ρ v λ σ π m e' λ' = case op of
                        m1 e1' λ1 m2 e2' λ2 m e' λ' d w i σ1 σ2
 
   _   -> σ' where
-    (m1,e1',λ1) = label' e1 m0 λ
+    (m1,e1',λ1) = labelE e1 m0 λ
     v1 = evalBin1 e1 e2 op ρ v -- isJust (eval e1 ρ) && isJust (eval e2 ρ)
 
-    (m2,e2',λ2) = label' e2 m1 λ1
+    (m2,e2',λ2) = labelE e2 m1 λ1
     v2 = evalBin2 e1 e2 op ρ v -- isJust (eval e1 ρ) && isJust (eval e2 ρ)
 
     wf1 = labelWF    e1 m0 λ m1 e1' λ1 -- e1' is well-formed
@@ -306,7 +306,7 @@ auxBin m0 e1 e2 op ρ v λ σ π m e' λ' = case op of
 
             -> m:{Nat | m >= m0}
             -> e':{LDSL p (Btwn 0 m) | freshE e' σ && wfE e'}
-            -> λ':{LabelEnv p (Btwn 0 m) | label' (CONS e1 e2) m0 λ = (m, e', λ')}
+            -> λ':{LabelEnv p (Btwn 0 m) | labelE (CONS e1 e2) m0 λ = (m, e', λ')}
 
             -> { σ':WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
                                      && evalWire m e' σ' = v }
@@ -321,10 +321,10 @@ auxCons :: (Fractional p, Ord p) => Int -> DSL p -> DSL p
 
         -> WireValuation p
 auxCons m0 e1 e2 ρ v λ σ π m e' λ' = σ' where
-  (m1,e1',λ1) = label' e1 m0 λ
+  (m1,e1',λ1) = labelE e1 m0 λ
   v1 = evalCons1 e1 e2 ρ v -- isJust (eval e1 ρ) && isJust (eval e2 ρ)
 
-  (m2,e2',λ2) = label' e2 m1 λ1
+  (m2,e2',λ2) = labelE e2 m1 λ1
   v2 = evalCons2 e1 e2 ρ v -- isJust (eval e1 ρ) && isJust (eval e2 ρ)
 
   wf1 = labelWF    e1 m0 λ m1 e1' λ1 -- e1' is well-formed
@@ -368,7 +368,7 @@ auxCons m0 e1 e2 ρ v λ σ π m e' λ' = σ' where
 
                 -> m:{Nat | m >= m0}
                 -> e':{LDSL p (Btwn 0 m) | freshE e' σ && wfE e'}
-                -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                 -> { σ':WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
                                          && evalWire m e' σ' = v}

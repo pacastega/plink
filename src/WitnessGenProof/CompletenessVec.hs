@@ -38,7 +38,7 @@ import Language.Haskell.Liquid.ProofCombinators
 
                   -> m:{Nat | m >= m0}
                   -> e':{LDSL p (Btwn 0 m) | wfE e' && freshE e' σ}
-                  -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                  -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                   -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
                                           && evalWire m e' σ' = v } @-}
@@ -64,15 +64,15 @@ wgCompleteNil m0 τ e ρ v λ σ m e' λ' = σ
 
                    -> m1:{Nat | m1 >= m0}
                    -> e1':LDSL p (Btwn 0 m1)
-                   -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+                   -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                    -> m2:{Nat | m2 >= m1}
                    -> e2':LDSL p (Btwn 0 m2)
-                   -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+                   -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
                    -> m:{Nat | m >= m2}
                    -> e':{LDSL p (Btwn 0 m) | wfE e' && freshE e' σ}
-                   -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                   -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                    -> σ1:{WireValuation p m | Just σ1 = witnessGenE' m ρ σ e1'
                                            && evalWire m e1' σ1 = v1}

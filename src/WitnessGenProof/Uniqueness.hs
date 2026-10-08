@@ -41,7 +41,7 @@ import Language.Haskell.Liquid.ProofCombinators
 
                     -> m:{Nat | m0 <= m}
                     -> e':{TypedLDSL p (Btwn 0 m) | wfE e'}
-                    -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 M.MTip = (m, e', λ')}
+                    -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 M.MTip = (m, e', λ')}
 
                     -> σ:{WireValuation p m | closedExpr m σ e' && coherentE m e' σ}
                     -> Agree λ' ρ σ
@@ -79,7 +79,7 @@ evalWireUnique2 m0 e ρ _ m e' λ' σ π v γ' =
 
           -> m:{Nat | m0 <= m && m <= m'}
           -> e':{TypedLDSL p (Btwn 0 m) | wfE e'}
-          -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+          -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
           -> τ:{Ty | inferType' e' = Just τ}
 
@@ -108,7 +108,7 @@ auxUn m0 m' op e1 e ρ λ m e' λ' τ σ π v γ γ' h_boolean = ()
   ?? wf1
   ?? uniqueUn m0 m' op e1 e ρ λ m1 e1' λ1 m e' λ' σ (v1 ? ih1) v
 
-  where (m1,e1',λ1) = label' e1 m0 λ
+  where (m1,e1',λ1) = labelE e1 m0 λ
         v1 = m_gt_m1
           ?? labelTyped e1 m0 λ m1 e1' λ1
           ?? wires1
@@ -140,7 +140,7 @@ auxUn m0 m' op e1 e ρ λ m e' λ' τ σ π v γ γ' h_boolean = ()
 
            -> m:{Nat | m0 <= m && m <= m'}
            -> e':{TypedLDSL p (Btwn 0 m) | wfE e'}
-           -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+           -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
            -> τ:{Ty | inferType' e' = Just τ}
 
@@ -169,8 +169,8 @@ auxBin m0 m' op e1 e2 e ρ λ m e' λ' τ σ π v γ γ' h_boolean = ()
         ?? wf1 ?? wf2
         ?? uniqueBin m0 m' op e1 e2 e ρ λ m1 e1' λ1 m2 e2' λ2 m e' λ' σ (v1 ? ih1) (v2 ? ih2) v
 
-  where (m1,e1',λ1) = label' e1 m0 λ
-        (m2,e2',λ2) = label' e2 m1 λ1
+  where (m1,e1',λ1) = labelE e1 m0 λ
+        (m2,e2',λ2) = labelE e2 m1 λ1
         v1 = m_gt_m1_m2
           ?? labelTyped e1 m0 λ  m1 e1' λ1
           ?? wires12
@@ -223,7 +223,7 @@ auxBin m0 m' op e1 e2 e ρ λ m e' λ' τ σ π v γ γ' h_boolean = ()
 
             -> m:{Nat | m0 <= m && m <= m'}
             -> e':{TypedLDSL p (Btwn 0 m) | wfE e'}
-            -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+            -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
             -> τ:{Ty | inferType' e' = Just τ}
 
@@ -252,8 +252,8 @@ auxCons m0 m' e1 e2 e ρ λ m e' λ' τ σ π v γ γ' h_boolean = ()
         ?? wf1 ?? wf2
         ?? uniqueCons m0 m' e1 e2 e ρ λ m1 e1' λ1 m2 e2' λ2 m e' λ' σ (v1 ? ih1) (v2 ? ih2) v
 
-  where (m1,e1',λ1) = label' e1 m0 λ
-        (m2,e2',λ2) = label' e2 m1 λ1
+  where (m1,e1',λ1) = labelE e1 m0 λ
+        (m2,e2',λ2) = labelE e2 m1 λ1
         v1 = m_gt_m1_m2
           ?? labelTyped e1 m0 λ  m1 e1' λ1
           ?? wires12
@@ -306,7 +306,7 @@ auxCons m0 m' e1 e2 e ρ λ m e' λ' τ σ π v γ γ' h_boolean = ()
 
                    -> m:{Nat | m0 <= m && m <= m'}
                    -> e':{TypedLDSL p (Btwn 0 m) | wfE e'}
-                   -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                   -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                    -> {σ:WireValuation p m' | closedExpr m' σ e' && coherentE m' e' σ}
                    -> Agree λ' ρ σ

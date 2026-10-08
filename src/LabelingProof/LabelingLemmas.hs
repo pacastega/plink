@@ -29,7 +29,7 @@ import Language.Haskell.Liquid.ProofCombinators
 
 {-@ labelWF :: e:TypedDSL p -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
             -> m:{Int | m >= m0} -> e':LDSL p Int
-            -> λ':{LabelEnv p Int | label' e m0 λ = (m, e', λ')}
+            -> λ':{LabelEnv p Int | labelE e m0 λ = (m, e', λ')}
             -> { wfE e' }
              / [size e] @-}
 labelWF :: (Num p, Ord p) => DSL p -> Int -> LabelEnv p Int
@@ -45,11 +45,11 @@ labelWF e m0 λ m e' λ' = case e of
 
   UN op e1 -> case op of
     BoolToF -> labelWF e1                  m0 λ m  e1' λ1
-      where (_, e1', λ1) = label' e1 m0 λ
+      where (_, e1', λ1) = labelE e1 m0 λ
     ISZERO  -> labelWF (UN (EQLC zero) e1) m0 λ m  e'  λ'
     EQLC k  -> labelWF e1                  m0 λ i' e1' λ1
              ? ltLemma 0 i' used w' ? ltLemma 0 i' used i'
-      where (i', e1', λ1) = label' e1 m0 λ
+      where (i', e1', λ1) = labelE e1 m0 λ
             w' = i'+1
 
             {-@ used :: S.Set (Btwn 0 i') @-}
@@ -57,7 +57,7 @@ labelWF e m0 λ m e' λ' = case e of
             used = wiresE e1'
 
     _ -> labelWF e1 m0 λ i' e1' λ1 ? ltLemma 0 i' used i'
-      where (i', e1', λ1) = label' e1 m0 λ
+      where (i', e1', λ1) = labelE e1 m0 λ
 
             {-@ used :: S.Set (Btwn 0 i') @-}
             used :: S.Set Int
@@ -70,8 +70,8 @@ labelWF e m0 λ m e' λ' = case e of
          ? disjLemma 0 i1 i2 used1 used2
          ? ltLemma 0 i2 (used1 `S.union` used2) i
          ? ltLemma 0 i2 (used1 `S.union` used2) w
-      where (i1, e1', λ1) = label' e1 m0 λ
-            (i2, e2', λ2) = label' e2 i1 λ1
+      where (i1, e1', λ1) = labelE e1 m0 λ
+            (i2, e2', λ2) = labelE e2 i1 λ1
 
             (LDIV _ _ w i) = e'
 
@@ -89,8 +89,8 @@ labelWF e m0 λ m e' λ' = case e of
          ? disjLemma 0 i1 i2 used1 used2
          ? ltLemma 0 i2 (used1 `S.union` used2) i
          ? ltLemma 0 i2 (used1 `S.union` used2) w
-      where (i1, e1', λ1) = label' e1 m0 λ
-            (i2, e2', λ2) = label' e2 i1 λ1
+      where (i1, e1', λ1) = labelE e1 m0 λ
+            (i2, e2', λ2) = labelE e2 i1 λ1
 
             (LEQLC _ _ w i) = e'
 
@@ -106,8 +106,8 @@ labelWF e m0 λ m e' λ' = case e of
        ? labelWF e2 i1 λ1 i2 e2' λ2
        ? ltLemma 0 i1 used1 i2 ? ltLemma i1 i2 used2 i2
        ? disjLemma 0 i1 i2 used1 used2
-      where (i1, e1', λ1) = label' e1 m0 λ
-            (i2, e2', λ2) = label' e2 i1 λ1
+      where (i1, e1', λ1) = labelE e1 m0 λ
+            (i2, e2', λ2) = labelE e2 i1 λ1
 
             {-@ used1 :: S.Set (Btwn 0 i1) @-}
             used1 :: S.Set Int
@@ -121,8 +121,8 @@ labelWF e m0 λ m e' λ' = case e of
   CONS e es -> labelWF e  m0 λ  i1 e'  λ1
              ? labelWF es i1 λ1 i2 es' λ2
              ? disjLemma 0 i1 i2 usedH usedTs
-    where (i1, e',  λ1) = label' e  m0 λ
-          (i2, es', λ2) = label' es i1 λ1
+    where (i1, e',  λ1) = labelE e  m0 λ
+          (i2, es', λ2) = labelE es i1 λ1
 
           {-@ usedH :: S.Set (Btwn 0 i1) @-}
           usedH :: S.Set Int
@@ -135,28 +135,28 @@ labelWF e m0 λ m e' λ' = case e of
 
 {-@ labelAWF :: a:Assertion p -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
              -> m:{Int | m >= m0} -> a':LAss p Int
-             -> λ':{LabelEnv p Int | labelAssertion a m0 λ = (m, a', λ')}
+             -> λ':{LabelEnv p Int | labelA a m0 λ = (m, a', λ')}
              -> { wfA a' } @-}
 labelAWF :: (Num p, Ord p) => Assertion p -> Int -> LabelEnv p Int
          -> Int -> LAss p Int -> LabelEnv p Int
          -> Proof
 labelAWF a m0 λ m a' λ' = case a of
   NZERO e1 -> wtE ?? ltLemma m0 m1 (wiresE e1') m1 ?? labelWF e1 m0 λ m1 e1' λ1
-    where (m1, e1', λ1) = label' e1 m0 λ
+    where (m1, e1', λ1) = labelE e1 m0 λ
 
           {-@ wtE :: { wellTyped e1 } @-}
           wtE = case inferType e1 of Just _ -> trivial
 
   BOOLEAN e1 -> wtE ?? labelWF e1 m0 λ m1 e1' λ1
-    where (m1, e1', λ1) = label' e1 m0 λ
+    where (m1, e1', λ1) = labelE e1 m0 λ
 
           {-@ wtE :: { wellTyped e1 } @-}
           wtE = case inferType e1 of Just _ -> trivial
   EQA e1 e2 -> wtE1 ?? wtE2 ?? disjLemma m0 m1 m2 (wiresE e1') (wiresE e2')
             ?? labelWF e1 m0 λ  m1 e1' λ1
             ?? labelWF e2 m1 λ1 m2 e2' λ2
-    where (m1, e1', λ1) = label' e1 m0 λ
-          (m2, e2', λ2) = label' e2 m1 λ1
+    where (m1, e1', λ1) = labelE e1 m0 λ
+          (m2, e2', λ2) = labelE e2 m1 λ1
 
           {-@ wtE1 :: { wellTyped e1 } @-}
           wtE1 = case inferType e1 of Just _ -> trivial
@@ -166,35 +166,35 @@ labelAWF a m0 λ m a' λ' = case a of
 
 {-@ labelAsWF :: st:Store p -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
               -> m:{Int | m >= m0} -> st':[LAssI p (Btwn m0 m) (Btwn 0 m)]
-              -> λ':{LabelEnv p Int | labelStore st m0 λ = (m, st', λ')}
+              -> λ':{LabelEnv p Int | labelAs st m0 λ = (m, st', λ')}
               -> { wfAs st' } @-}
 labelAsWF :: (Num p, Ord p) => Store p -> Int -> LabelEnv p Int
           -> Int -> [LAss p Int] -> LabelEnv p Int
           -> Proof
 labelAsWF st m0 λ m st' λ' = case st of
   [] -> trivial
-  a:as -> labelAssertionWF a m0 λ m1 a' λ1
+  a:as -> labelAWF a m0 λ m1 a' λ1
         ? disjLemma m0 m1 m2 (wiresA a') (wiresAs as')
         ? labelAsWF as m1 λ1 m2 as' λ2 where
-    (m1,a',λ1) = labelAssertion a m0 λ
-    (m2,as',λ2) = labelStore as m1 λ1
+    (m1,a',λ1) = labelA a m0 λ
+    (m2,as',λ2) = labelAs as m1 λ1
 
 
 -- labeling produces well-typed expressions (of the same type) -----------------
 
 {-@ labelType :: e:TypedDSL p -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
               -> m:Int -> e':LDSL p Int
-              -> λ':{LabelEnv p Int | label' e m0 λ = (m, e', λ')}
+              -> λ':{LabelEnv p Int | labelE e m0 λ = (m, e', λ')}
               -> { inferType' e' = inferType e } @-}
 labelType :: (Num p, Ord p) => DSL p -> Int -> LabelEnv p Int
           -> Int -> LDSL p Int -> LabelEnv p Int
           -> Proof
-labelType e m0 λ _ _ _ = case label' e m0 λ of (_, e', _) -> trivial
+labelType e m0 λ _ _ _ = case labelE e m0 λ of (_, e', _) -> trivial
 
 
 {-@ labelTyped :: e:TypedDSL p -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
                -> m:Int -> e':LDSL p Int
-               -> λ':{LabelEnv p Int | label' e m0 λ = (m, e', λ')}
+               -> λ':{LabelEnv p Int | labelE e m0 λ = (m, e', λ')}
                -> { wellTyped' e' } @-}
 labelTyped :: (Num p, Ord p) => DSL p -> Int -> LabelEnv p Int
            -> Int -> LDSL p Int -> LabelEnv p Int
@@ -210,12 +210,12 @@ labelTyped e m0 λ m e' λ' = case inferType e of
 
               -> m1:{Int | m1 >= m0}
               -> e1':LDSL p (Btwn 0 m1)
-              -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ  = (m1, e1', λ1)}
+              -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ  = (m1, e1', λ1)}
 
               -> m:{Int | m >= m1}
               -> e':LDSL p (Btwn 0 m)
               -> λ':{LabelEnv p (Btwn 0 m) |
-                              label' (UN BoolToF e1) m0 λ = (m, e', λ')}
+                              labelE (UN BoolToF e1) m0 λ = (m, e', λ')}
               -> { e' = LBoolToF e1' } @-}
 labelCast :: (Num p, Ord p) => Int -> DSL p -> LabelEnv p Int
           -> Int -> LDSL p Int -> LabelEnv p Int
@@ -230,16 +230,16 @@ labelCast m0 e1 λ m1 e1' λ1 _m e' _λ' = case e' of
 
              -> m1:{Int | m1 >= m0}
              -> e1':LDSL p (Btwn 0 m1)
-             -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ  = (m1, e1', λ1)}
+             -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ  = (m1, e1', λ1)}
 
              -> m2:{Int | m2 >= m1}
              -> e2':LDSL p (Btwn 0 m2)
-             -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+             -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
              -> m:{Int | m >= m2}
              -> e':LDSL p (Btwn 0 m)
              -> λ':{LabelEnv p (Btwn 0 m) |
-                             label' (BIN DIV e1 e2) m0 λ = (m, e', λ')}
+                             labelE (BIN DIV e1 e2) m0 λ = (m, e', λ')}
              -> (w::Btwn 0 m, i:{Btwn 0 m | e' = LDIV e1' e2' w i}) @-}
 labelDiv :: (Num p, Ord p) => Int -> DSL p -> DSL p -> LabelEnv p Int
          -> Int -> LDSL p Int -> LabelEnv p Int
@@ -255,12 +255,12 @@ labelDiv m0 e1 e2 λ m1 e1' λ1 m2 e2' λ2 _m e' _λ' = case e' of
 
             -> m1:{Int | m1 >= m0}
             -> e1':LDSL p (Btwn 0 m1)
-            -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ  = (m1, e1', λ1)}
+            -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ  = (m1, e1', λ1)}
 
             -> m:{Int | m >= m1}
             -> e':LDSL p (Btwn 0 m)
             -> λ':{LabelEnv p (Btwn 0 m) |
-                            label' (UN op e1) m0 λ = (m, e', λ')}
+                            labelE (UN op e1) m0 λ = (m, e', λ')}
             -> i:{Btwn 0 m | e' = LUN op e1' i} @-}
 labelUn :: (Num p, Ord p) => Int -> DSL p -> LabelEnv p Int -> UnOp p
         -> Int -> LDSL p Int -> LabelEnv p Int
@@ -279,16 +279,16 @@ labelUn m0 e1 λ op m1 e1' λ1 _m e' _λ' = case op of
 
              -> m1:{Int | m1 >= m0}
              -> e1':LDSL p (Btwn 0 m1)
-             -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ  = (m1, e1', λ1)}
+             -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ  = (m1, e1', λ1)}
 
              -> m2:{Int | m2 >= m1}
              -> e2':LDSL p (Btwn 0 m2)
-             -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+             -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
              -> m:{Int | m >= m2}
              -> e':LDSL p (Btwn 0 m)
              -> λ':{LabelEnv p (Btwn 0 m) |
-                             label' (BIN op e1 e2) m0 λ = (m, e', λ')}
+                             labelE (BIN op e1 e2) m0 λ = (m, e', λ')}
              -> i:{Btwn 0 m | e' = LBIN op e1' e2' i} @-}
 labelBin :: (Num p, Ord p) => Int -> DSL p -> DSL p -> LabelEnv p Int -> BinOp p
          -> Int -> LDSL p Int -> LabelEnv p Int
@@ -306,16 +306,16 @@ labelBin m0 e1 e2 λ op m1 e1' λ1 m2 e2' λ2 _m e' _λ' = case op of
 
              -> m1:{Int | m1 >= m0}
              -> e1':LDSL p (Btwn 0 m1)
-             -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ  = (m1, e1', λ1)}
+             -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ  = (m1, e1', λ1)}
 
              -> m2:{Int | m2 >= m1}
              -> e2':LDSL p (Btwn 0 m2)
-             -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+             -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
              -> m:{Int | m >= m2}
              -> e':LDSL p (Btwn 0 m)
              -> λ':{LabelEnv p (Btwn 0 m) |
-                             label' (BIN EQL e1 e2) m0 λ = (m, e', λ')}
+                             labelE (BIN EQL e1 e2) m0 λ = (m, e', λ')}
              -> (d::Btwn 0 m, w::Btwn 0 m, i:{Btwn 0 m | e' = LEQLC (LBIN SUB e1' e2' d) 0 w i}) @-}
 labelEql :: (Num p, Ord p) => Int -> DSL p -> DSL p -> LabelEnv p Int
          -> Int -> LDSL p Int -> LabelEnv p Int
@@ -331,12 +331,12 @@ labelEql m0 e1 e2 λ m1 e1' λ1 m2 e2' λ2 _m e' _λ' = case e' of
 
              -> m1:{Int | m1 >= m0}
              -> e1':LDSL p (Btwn 0 m1)
-             -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ  = (m1, e1', λ1)}
+             -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ  = (m1, e1', λ1)}
 
              -> m:{Int | m >= m1}
              -> e':LDSL p (Btwn 0 m)
              -> λ':{LabelEnv p (Btwn 0 m) |
-                             label' (UN (EQLC k) e1) m0 λ = (m, e', λ')}
+                             labelE (UN (EQLC k) e1) m0 λ = (m, e', λ')}
              -> (w::Btwn 0 m, i:{Btwn 0 m | e' = LEQLC e1' k w i}) @-}
 labelIsk :: (Num p, Ord p) => Int -> DSL p -> LabelEnv p Int -> p
          -> Int -> LDSL p Int -> LabelEnv p Int
@@ -351,12 +351,12 @@ labelIsk m0 e1 λ k m1 e1' λ1 _m e' _λ' = case e' of
 
              -> m1:{Int | m1 >= m0}
              -> e1':LDSL p (Btwn 0 m1)
-             -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ  = (m1, e1', λ1)}
+             -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ  = (m1, e1', λ1)}
 
              -> m:{Int | m >= m1}
              -> e':LDSL p (Btwn 0 m)
              -> λ':{LabelEnv p (Btwn 0 m) |
-                             label' (UN ISZERO e1) m0 λ = (m, e', λ')}
+                             labelE (UN ISZERO e1) m0 λ = (m, e', λ')}
              -> (w::Btwn 0 m, i:{Btwn 0 m | e' = LEQLC e1' 0 w i}) @-}
 labelIs0 :: (Num p, Ord p) => Int -> DSL p -> LabelEnv p Int
          -> Int -> LDSL p Int -> LabelEnv p Int
@@ -371,16 +371,16 @@ labelIs0 m0 e1 λ m1 e1' λ1 _m e' _λ' = case e' of
 
               -> m1:{Int | m1 >= m0}
               -> e1':LDSL p (Btwn 0 m1)
-              -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ  = (m1, e1', λ1)}
+              -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ  = (m1, e1', λ1)}
 
               -> m2:{Int | m2 >= m1}
               -> e2':LDSL p (Btwn 0 m2)
-              -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+              -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
               -> m:{Int | m >= m2}
               -> e':LDSL p (Btwn 0 m)
               -> λ':{LabelEnv p (Btwn 0 m) |
-                              label' (CONS e1 e2) m0 λ = (m, e', λ')}
+                              labelE (CONS e1 e2) m0 λ = (m, e', λ')}
               -> { e' = LCONS e1' e2' } @-}
 labelCons :: (Num p, Ord p) => Int -> DSL p -> DSL p -> LabelEnv p Int
           -> Int -> LDSL p Int -> LabelEnv p Int
@@ -394,7 +394,7 @@ labelCons m0 e1 e2 λ m1 e1' λ1 m2 e2' λ2 _m e' _λ' = case e' of
 {-@ labelNil :: m0:Nat -> τ:Ty -> λ:LabelEnv p (Btwn 0 m0)
              -> m:{Int | m >= m0}
              -> e':LDSL p (Btwn 0 m)
-             -> λ':{LabelEnv p (Btwn 0 m) | label' (NIL τ) m0 λ = (m, e', λ')}
+             -> λ':{LabelEnv p (Btwn 0 m) | labelE (NIL τ) m0 λ = (m, e', λ')}
              -> { e' = LNIL τ } @-}
 labelNil :: (Num p, Ord p) => Int -> Ty -> LabelEnv p Int
          -> Int -> LDSL p Int -> LabelEnv p Int -> Proof
@@ -404,8 +404,8 @@ labelNil m0 τ λ  _m e' _λ' = case e' of LNIL _ -> trivial
 -- labeling never decreases the bound on used wires ----------------------------
 
 {-@ labelIncUn :: op:UnOp p -> e1:{DSL p | wellTyped (UN op e1)} -> m0:Nat -> λ:LabelEnv p Int
-               -> m1:Int -> e1':LDSL p Int -> λ1:{LabelEnv p Int | label' e1 m0 λ = (m1, e1', λ1)}
-               ->  m:Int ->  e':LDSL p Int -> λ':{LabelEnv p Int | label' (UN op e1) m0 λ = (m, e', λ')}
+               -> m1:Int -> e1':LDSL p Int -> λ1:{LabelEnv p Int | labelE e1 m0 λ = (m1, e1', λ1)}
+               ->  m:Int ->  e':LDSL p Int -> λ':{LabelEnv p Int | labelE (UN op e1) m0 λ = (m, e', λ')}
                -> { m >= m1 } @-}
 labelIncUn :: Num p => UnOp p -> DSL p -> Int -> LabelEnv p Int
            -> Int -> LDSL p Int -> LabelEnv p Int
@@ -423,13 +423,13 @@ labelIncUn op _ _ _ _ _ _ _ _ _ = case op of
                 -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
 
                 -> m1:Nat -> e1':LDSL p (Btwn 0 m1)
-                -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ  = (m1, e1', λ1)}
+                -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ  = (m1, e1', λ1)}
 
                 -> m2:Nat -> e2':LDSL p (Btwn 0 m2)
-                -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+                -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
                 ->  m:Nat ->  e':LDSL p (Btwn 0 m)
-                -> λ':{LabelEnv p (Btwn 0 m) | label' (BIN op e1 e2) m0 λ = (m, e', λ')}
+                -> λ':{LabelEnv p (Btwn 0 m) | labelE (BIN op e1 e2) m0 λ = (m, e', λ')}
                 -> { m >= m2 && m2 >= m1 } @-}
 labelIncBin :: (Num p, Ord p) => BinOp p -> DSL p -> DSL p -> Int -> LabelEnv p Int
             -> Int -> LDSL p Int -> LabelEnv p Int
@@ -437,8 +437,8 @@ labelIncBin :: (Num p, Ord p) => BinOp p -> DSL p -> DSL p -> Int -> LabelEnv p 
             -> Int -> LDSL p Int -> LabelEnv p Int
             -> Proof
 labelIncBin op e1 e2 m0 λ m1 _e1' λ1 m2 _e2' _λ2 m _e' _λ'
-  = trivial ? case label' e1 m0 λ  of (m1,_,_) -> m1
-            ? case label' e2 m1 λ1 of (m2,_,_) -> m2
+  = trivial ? case labelE e1 m0 λ  of (m1,_,_) -> m1
+            ? case labelE e2 m1 λ1 of (m2,_,_) -> m2
             ? case op of
                 DIV -> liquidAssert (m > m2)
                 EQL -> liquidAssert (m > m2)
@@ -449,13 +449,13 @@ labelIncBin op e1 e2 m0 λ m1 _e1' λ1 m2 _e2' _λ2 m _e' _λ'
                  -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
 
                  -> m1:Nat -> e1':LDSL p (Btwn 0 m1)
-                 -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ  = (m1, e1', λ1)}
+                 -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ  = (m1, e1', λ1)}
 
                  -> m2:Nat -> e2':LDSL p (Btwn 0 m2)
-                 -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+                 -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
                  -> m:Nat -> e':LDSL p (Btwn 0 m)
-                 -> λ':{LabelEnv p (Btwn 0 m) | label' (CONS e1 e2) m0 λ = (m, e', λ')}
+                 -> λ':{LabelEnv p (Btwn 0 m) | labelE (CONS e1 e2) m0 λ = (m, e', λ')}
                  -> { m >= m2 && m2 >= m1 } @-}
 labelIncCons :: (Num p, Ord p) => DSL p -> DSL p -> Int -> LabelEnv p Int
              -> Int -> LDSL p Int -> LabelEnv p Int
@@ -463,5 +463,5 @@ labelIncCons :: (Num p, Ord p) => DSL p -> DSL p -> Int -> LabelEnv p Int
              -> Int -> LDSL p Int -> LabelEnv p Int
              -> Proof
 labelIncCons e1 e2 m0 λ m1 _e1' λ1 m2 _e2' _λ2 m _e' _λ'
-  = trivial ? case label' e1 m0 λ  of (m1,_,_) -> m1
-            ? case label' e2 m1 λ1 of (m2,_,_) -> m2
+  = trivial ? case labelE e1 m0 λ  of (m1,_,_) -> m1
+            ? case labelE e2 m1 λ1 of (m2,_,_) -> m2

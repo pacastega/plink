@@ -36,7 +36,7 @@ import Language.Haskell.Liquid.ProofCombinators
                   -> Agree λ ρ σ
 
                   -> λ':LabelEnv p (Btwn 0 m)
-                  -> e':{LDSL p (Btwn 0 m) | label' (VAR s τ) m0 λ = (m, e', λ')}
+                  -> e':{LDSL p (Btwn 0 m) | labelE (VAR s τ) m0 λ = (m, e', λ')}
                   -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'}
 
                   -> Agree λ' ρ σ' @-}
@@ -73,7 +73,7 @@ agreeLemmaVar m0 m s τ ρ λ σ π λ' e' σ' = case M.lookup s λ of
                     -> Agree λ ρ σ
 
                     -> λ':LabelEnv p (Btwn 0 m)
-                    -> e':{LDSL p (Btwn 0 m) | label' (CONST k) m0 λ = (m, e', λ')}
+                    -> e':{LDSL p (Btwn 0 m) | labelE (CONST k) m0 λ = (m, e', λ')}
                     -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'}
 
                     -> Agree λ' ρ σ' @-}
@@ -102,7 +102,7 @@ agreeLemmaConst m0 m k ρ λ σ π λ' e' σ' x = π x ? notElemLemma x (outputW
                    -> Agree λ ρ σ
 
                    -> λ':LabelEnv p (Btwn 0 m)
-                   -> e':{LDSL p (Btwn 0 m) | label' (BOOL b) m0 λ = (m, e', λ')}
+                   -> e':{LDSL p (Btwn 0 m) | labelE (BOOL b) m0 λ = (m, e', λ')}
                    -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'}
 
                    -> Agree λ' ρ σ' @-}

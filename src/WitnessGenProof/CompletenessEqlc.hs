@@ -44,11 +44,11 @@ import Language.Haskell.Liquid.ProofCombinators
 
                    -> m1:{Nat | m1 >= m0}
                    -> e1':LDSL p (Btwn 0 m1)
-                   -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+                   -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                    -> m:{Nat | m >= m1}
                    -> e':{LDSL p (Btwn 0 m) | wfE e' && freshE e' σ}
-                   -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                   -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                    -> w:Btwn 0 m -> i:{Btwn 0 m | e' = LEQLC e1' k w i}
 
@@ -111,11 +111,11 @@ evalIsk e1 k ρ v v1 = case eval (UN (EQLC k) e1) ρ of
 
                   -> m1:{Nat | m1 >= m0}
                   -> e1':LDSL p (Btwn 0 m1)
-                  -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+                  -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                   -> m:{Nat | m >= m1}
                   -> e':{LDSL p (Btwn 0 m) | wfE e' && freshE e' σ}
-                  -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                  -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                   -> w:Btwn 0 m -> i:{Btwn 0 m | e' = LEQLC e1' 0 w i}
 

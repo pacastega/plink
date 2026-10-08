@@ -29,12 +29,12 @@ import Language.Haskell.Liquid.ProofCombinators
 
             -> m1:{Int | m1 >= m0}
             -> e1':LDSL p (Btwn 0 m1)
-            -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ  = (m1, e1', λ1)}
+            -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ  = (m1, e1', λ1)}
 
             -> m:{Int | m >= m1}
             -> a':LAss p (Btwn 0 m)
             -> λ':{LabelEnv p (Btwn 0 m) |
-                            labelAssertion (NZERO e1) m0 λ = (m, a', λ')}
+                            labelA (NZERO e1) m0 λ = (m, a', λ')}
             -> w:{Btwn 0 m | a' = LNZERO e1' w} @-}
 labelNZ :: (Num p, Ord p) => Int -> DSL p -> LabelEnv p Int
         -> Int -> LDSL p Int -> LabelEnv p Int

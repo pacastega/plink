@@ -44,7 +44,7 @@ import Language.Haskell.Liquid.ProofCombinators
 
                   -> m:{Nat | m >= m0}
                   -> e':{LDSL p (Btwn 0 m) | wfE e' && freshE e' σ}
-                  -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                  -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                   -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
                                           && evalWire m e' σ' = VF v} @-}
@@ -86,7 +86,7 @@ wgCompleteVar m0 s τ e ρ v λ σ π m e' λ' = case M.lookup s ρ of
 
                     -> m:{Nat | m >= m0}
                     -> e':{LDSL p (Btwn 0 m) | wfE e' && freshE e' σ}
-                    -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                    -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                     -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
                                             && evalWire m e' σ' = VF v} @-}
@@ -111,7 +111,7 @@ wgCompleteConst m0 x e ρ v λ σ m e' λ' = M.insert (outputWire e') x σ
 
                    -> m:{Nat | m >= m0}
                    -> e':{LDSL p (Btwn 0 m) | wfE e' && freshE e' σ}
-                   -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                   -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                    -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'
                                            && evalWire m e' σ' = VF v} @-}

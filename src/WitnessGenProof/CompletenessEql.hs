@@ -46,15 +46,15 @@ import Language.Haskell.Liquid.ProofCombinators
 
                   -> m1:{Nat | m1 >= m0}
                   -> e1':LDSL p (Btwn 0 m1)
-                  -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+                  -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                   -> m2:{Nat | m2 >= m1}
                   -> e2':LDSL p (Btwn 0 m2)
-                  -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+                  -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
                   -> m:{Nat | m >= m2}
                   -> e':{LDSL p (Btwn 0 m) | wfE e' && freshE e' σ}
-                  -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                  -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                   -> d:Btwn 0 m -> w:Btwn 0 m
                   -> i:{Btwn 0 m | e' = LEQLC (LBIN SUB e1' e2' d) 0 w i}
@@ -94,7 +94,7 @@ wgCompleteEql m0 e1 e2 e ρ v1 v2 v λ σ m1 e1' λ1 m2 e2' λ2 m e' λ' d w i �
       wt_sub = liquidAssert (wellTyped e_sub)
       wt_e_alt = liquidAssert (wellTyped (UN (EQLC 0) e_sub))
       e'_eq = liquidAssert (e' == LEQLC e'_sub 0 w i)
-      (m_sub, e'_sub, λ_sub) = label' e_sub m0 λ
+      (m_sub, e'_sub, λ_sub) = labelE e_sub m0 λ
       m_sub_gt_m1_m2 = labelIncBin SUB e1 e2 m0 λ m1 e1' λ1 m2 e2' λ2 m_sub e'_sub λ_sub
       m_ge_m_sub = labelEqlLemma e1 e2 m0 λ ?? wt_sub
                 ?? labelIncUn (EQLC 0) e_sub m0 λ m_sub e'_sub λ_sub m e' λ'
@@ -131,11 +131,11 @@ wgCompleteEql m0 e1 e2 e ρ v1 v2 v λ σ m1 e1' λ1 m2 e2' λ2 m e' λ' d w i �
 
 {-@ labelEqlLemma :: e1:DSL p -> e2:DSL p -> m0:Nat
                   -> λ:LabelEnv p (Btwn 0 m0)
-                  -> { label' (BIN EQL e1 e2)               m0 λ =
-                       label' (UN (EQLC 0) (BIN SUB e1 e2)) m0 λ } @-}
+                  -> { labelE (BIN EQL e1 e2)               m0 λ =
+                       labelE (UN (EQLC 0) (BIN SUB e1 e2)) m0 λ } @-}
 labelEqlLemma :: (Fractional p, Ord p) => DSL p -> DSL p -> Int
               -> LabelEnv p Int -> Proof
-labelEqlLemma e1 e2 m0 λ = case label' (BIN EQL e1 e2) m0 λ of _ -> trivial
+labelEqlLemma e1 e2 m0 λ = case labelE (BIN EQL e1 e2) m0 λ of _ -> trivial
 
 
 {-@ evalEqlIs0Sub :: e1:DSL p -> e2:DSL p

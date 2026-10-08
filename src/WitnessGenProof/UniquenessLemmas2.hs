@@ -37,10 +37,10 @@ import Language.Haskell.Liquid.ProofCombinators
             -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
 
             -> m1:Nat -> e1':LDSL p (Btwn 0 m1)
-            -> λ1:{LabelEnv p (Btwn 0 m1) | (m1,e1',λ1) = label' e1 m0 λ}
+            -> λ1:{LabelEnv p (Btwn 0 m1) | (m1,e1',λ1) = labelE e1 m0 λ}
 
             -> m:Nat -> e':LDSL p (Btwn 0 m)
-            -> λ':{LabelEnv p (Btwn 0 m) | (m,e',λ') = label' (UN op e1) m0 λ}
+            -> λ':{LabelEnv p (Btwn 0 m) | (m,e',λ') = labelE (UN op e1) m0 λ}
 
             -> { S.isSubsetOf (S.union (wiresE e1') (ptrsE e1'))
                               (S.union (wiresE e')  (ptrsE e') ) } @-}
@@ -59,13 +59,13 @@ wiresUn e1 op m0 λ m1 e1' λ1 m e' λ' = case op of
              -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
 
              -> m1:Nat -> e1':LDSL p (Btwn 0 m1)
-             -> λ1:{LabelEnv p (Btwn 0 m1) | (m1,e1',λ1) = label' e1 m0 λ}
+             -> λ1:{LabelEnv p (Btwn 0 m1) | (m1,e1',λ1) = labelE e1 m0 λ}
 
              -> m2:Nat -> e2':LDSL p (Btwn 0 m2)
-             -> λ2:{LabelEnv p (Btwn 0 m2) | (m2,e2',λ2) = label' e2 m1 λ1}
+             -> λ2:{LabelEnv p (Btwn 0 m2) | (m2,e2',λ2) = labelE e2 m1 λ1}
 
              -> m:Nat -> e':LDSL p (Btwn 0 m)
-             -> λ':{LabelEnv p (Btwn 0 m) | (m,e',λ') = label' (BIN op e1 e2) m0 λ}
+             -> λ':{LabelEnv p (Btwn 0 m) | (m,e',λ') = labelE (BIN op e1 e2) m0 λ}
 
              -> { S.isSubsetOf (S.union (wiresE e1') (ptrsE e1'))
                                (S.union (wiresE e')  (ptrsE e') ) &&
@@ -86,13 +86,13 @@ wiresBin e1 e2 op m0 λ m1 e1' λ1 m2 e2' λ2 m e' λ' = case op of
               -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
 
               -> m1:Nat -> e1':LDSL p (Btwn 0 m1)
-              -> λ1:{LabelEnv p (Btwn 0 m1) | (m1,e1',λ1) = label' e1 m0 λ}
+              -> λ1:{LabelEnv p (Btwn 0 m1) | (m1,e1',λ1) = labelE e1 m0 λ}
 
               -> m2:Nat -> e2':LDSL p (Btwn 0 m2)
-              -> λ2:{LabelEnv p (Btwn 0 m2) | (m2,e2',λ2) = label' e2 m1 λ1}
+              -> λ2:{LabelEnv p (Btwn 0 m2) | (m2,e2',λ2) = labelE e2 m1 λ1}
 
               -> m:Nat -> e':LDSL p (Btwn 0 m)
-              -> λ':{LabelEnv p (Btwn 0 m) | (m,e',λ') = label' (CONS e1 e2) m0 λ}
+              -> λ':{LabelEnv p (Btwn 0 m) | (m,e',λ') = labelE (CONS e1 e2) m0 λ}
 
               -> { S.isSubsetOf (S.union (wiresE e1') (ptrsE e1'))
                                 (S.union (wiresE e')  (ptrsE e') ) &&
@@ -111,10 +111,10 @@ wiresCons e1 e2 m0 λ m1 e1' λ1 m2 e2' λ2 m e' λ' = trivial
                -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
 
                -> m1:Nat -> e1':LDSL p (Btwn 0 m1)
-               -> λ1:{LabelEnv p (Btwn 0 m1) | (m1,e1',λ1) = label' e1 m0 λ}
+               -> λ1:{LabelEnv p (Btwn 0 m1) | (m1,e1',λ1) = labelE e1 m0 λ}
 
                -> m:Nat -> e':LDSL p (Btwn 0 m)
-               -> λ':{LabelEnv p (Btwn 0 m) | (m,e',λ') = label' (UN op e1) m0 λ}
+               -> λ':{LabelEnv p (Btwn 0 m) | (m,e',λ') = labelE (UN op e1) m0 λ}
 
                -> { λ' = λ1 } @-}
 labelEnvUn :: (Ord p, Num p)
@@ -132,13 +132,13 @@ labelEnvUn e1 op m0 λ m1 e1' λ1 m e' λ' = case op of
                 -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
 
                 -> m1:Nat -> e1':LDSL p (Btwn 0 m1)
-                -> λ1:{LabelEnv p (Btwn 0 m1) | (m1,e1',λ1) = label' e1 m0 λ}
+                -> λ1:{LabelEnv p (Btwn 0 m1) | (m1,e1',λ1) = labelE e1 m0 λ}
 
                 -> m2:Nat -> e2':LDSL p (Btwn 0 m2)
-                -> λ2:{LabelEnv p (Btwn 0 m2) | (m2,e2',λ2) = label' e2 m1 λ1}
+                -> λ2:{LabelEnv p (Btwn 0 m2) | (m2,e2',λ2) = labelE e2 m1 λ1}
 
                 -> m:Nat -> e':LDSL p (Btwn 0 m)
-                -> λ':{LabelEnv p (Btwn 0 m) | (m,e',λ') = label' (BIN op e1 e2) m0 λ}
+                -> λ':{LabelEnv p (Btwn 0 m) | (m,e',λ') = labelE (BIN op e1 e2) m0 λ}
 
                 -> { λ' = λ2 } @-}
 labelEnvBin :: (Ord p, Num p)
@@ -156,13 +156,13 @@ labelEnvBin e1 e2 op m0 λ m1 e1' λ1 m2 e2' λ2 m e' λ' = case op of
                  -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
 
                  -> m1:Nat -> e1':LDSL p (Btwn 0 m1)
-                 -> λ1:{LabelEnv p (Btwn 0 m1) | (m1,e1',λ1) = label' e1 m0 λ}
+                 -> λ1:{LabelEnv p (Btwn 0 m1) | (m1,e1',λ1) = labelE e1 m0 λ}
 
                  -> m2:Nat -> e2':LDSL p (Btwn 0 m2)
-                 -> λ2:{LabelEnv p (Btwn 0 m2) | (m2,e2',λ2) = label' e2 m1 λ1}
+                 -> λ2:{LabelEnv p (Btwn 0 m2) | (m2,e2',λ2) = labelE e2 m1 λ1}
 
                  -> m:Nat -> e':LDSL p (Btwn 0 m)
-                 -> λ':{LabelEnv p (Btwn 0 m) | (m,e',λ') = label' (CONS e1 e2) m0 λ}
+                 -> λ':{LabelEnv p (Btwn 0 m) | (m,e',λ') = labelE (CONS e1 e2) m0 λ}
 
                  -> { λ' = λ2 } @-}
 labelEnvCons :: (Ord p, Num p)
@@ -180,11 +180,11 @@ labelEnvCons e1 e2 m0 λ m1 e1' λ1 m2 e2' λ2 m e' λ' = trivial
 
                -> m:{Nat | m0 <= m && m <= m'}
                -> e':LDSL p (Btwn 0 m)
-               -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+               -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                -> m1:{Nat | m0 <= m1 && m1 <= m}
                -> e1':LDSL p (Btwn 0 m1)
-               -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+               -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                -> σ:{WireValuation p m' | closedExpr m' σ e'
                                        && coherentE m' e' σ}
@@ -206,15 +206,15 @@ coherentUn m0 m' op e1 e λ m e' λ' m1 e1' λ1 σ = case op of
 
                 -> m:{Nat | m0 <= m && m <= m'}
                 -> e':LDSL p (Btwn 0 m)
-                -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                 -> m1:{Nat | m0 <= m1 && m1 <= m}
                 -> e1':LDSL p (Btwn 0 m1)
-                -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+                -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                 -> m2:{Nat | m1 <= m2 && m2 <= m}
                 -> e2':LDSL p (Btwn 0 m2)
-                -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+                -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
                 -> σ:{WireValuation p m' | closedExpr m' σ e'
                                         && coherentE m' e' σ}
@@ -237,15 +237,15 @@ coherentBin m0 m' op e1 e2 e λ m e' λ' m1 e1' λ1 m2 e2' λ2 σ = case op of
 
                  -> m:{Nat | m0 <= m && m <= m'}
                  -> e':LDSL p (Btwn 0 m)
-                 -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                 -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                  -> m1:{Nat | m0 <= m1 && m1 <= m}
                  -> e1':LDSL p (Btwn 0 m1)
-                 -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+                 -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                  -> m2:{Nat | m1 <= m2 && m2 <= m}
                  -> e2':LDSL p (Btwn 0 m2)
-                 -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+                 -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
                  -> σ:{WireValuation p m' | closedExpr m' σ e'
                                          && coherentE m' e' σ}
@@ -266,11 +266,11 @@ coherentCons m0 m' e1 e2 e λ m e' λ' m1 e1' λ1 m2 e2' λ2 σ = trivial
 
              -> m:{Nat | m0 <= m}
              -> e':LDSL p (Btwn 0 m)
-             -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+             -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
              -> m1:{Nat | m0 <= m1 && m1 <= m}
              -> e1':LDSL p (Btwn 0 m1)
-             -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+             -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
              -> γ:TyEnv' (Btwn 0 m0)
              -> γ':{TyEnv' (Btwn 0 m) | Just γ' = tyEnvE e' γ}
@@ -298,15 +298,15 @@ tyEnvUn1 m0 op e1 e λ m e' λ' m1 e1' λ1 γ γ' =
 
                -> m:{Nat | m0 <= m}
                -> e':LDSL p (Btwn 0 m)
-               -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+               -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                -> m1:{Nat | m0 <= m1 && m1 <= m}
                -> e1':LDSL p (Btwn 0 m1)
-               -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+               -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                -> m2:{Nat | m1 <= m2 && m2 <= m}
                -> e2':LDSL p (Btwn 0 m2)
-               -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+               -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
                -> γ:TyEnv' (Btwn 0 m0)
                -> γ':{TyEnv' (Btwn 0 m) | Just γ' = tyEnvE e' γ}
@@ -334,15 +334,15 @@ tyEnvBin1 m0 op e1 e2 e λ m e' λ' m1 e1' λ1 m2 e2' λ2 γ γ' =
 
                -> m:{Nat | m0 <= m}
                -> e':LDSL p (Btwn 0 m)
-               -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+               -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                -> m1:{Nat | m0 <= m1 && m1 <= m}
                -> e1':LDSL p (Btwn 0 m1)
-               -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+               -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                -> m2:{Nat | m1 <= m2 && m2 <= m}
                -> e2':LDSL p (Btwn 0 m2)
-               -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+               -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
                -> γ:TyEnv' (Btwn 0 m0)
                -> γ':{TyEnv' (Btwn 0 m) | Just γ' = tyEnvE e' γ}
@@ -375,15 +375,15 @@ tyEnvBin2 m0 op e1 e2 e λ m e' λ' m1 e1' λ1 m2 e2' λ2 γ γ' γ1 =
 
                -> m:{Nat | m0 <= m}
                -> e':LDSL p (Btwn 0 m)
-               -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+               -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                -> m1:{Nat | m0 <= m1 && m1 <= m}
                -> e1':LDSL p (Btwn 0 m1)
-               -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+               -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                -> m2:{Nat | m1 <= m2 && m2 <= m}
                -> e2':LDSL p (Btwn 0 m2)
-               -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+               -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
                -> γ:TyEnv' (Btwn 0 m0)
                -> γ':{TyEnv' (Btwn 0 m) | Just γ' = tyEnvE e' γ}
@@ -407,15 +407,15 @@ tyEnvCons1 m0 e1 e2 e λ m e' λ' m1 e1' λ1 m2 e2' λ2 γ γ' =
 
                -> m:{Nat | m0 <= m}
                -> e':LDSL p (Btwn 0 m)
-               -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+               -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                -> m1:{Nat | m0 <= m1 && m1 <= m}
                -> e1':LDSL p (Btwn 0 m1)
-               -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+               -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                -> m2:{Nat | m1 <= m2 && m2 <= m}
                -> e2':LDSL p (Btwn 0 m2)
-               -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+               -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
                -> γ:TyEnv' (Btwn 0 m0)
                -> γ':{TyEnv' (Btwn 0 m) | Just γ' = tyEnvE e' γ}
@@ -444,11 +444,11 @@ tyEnvCons2 m0 e1 e2 e λ m e' λ' m1 e1' λ1 m2 e2' λ2 γ γ' γ1 =
 
                -> m:{Nat | m0 <= m && m <= m'}
                -> e':LDSL p (Btwn 0 m)
-               -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+               -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                -> m1:{Nat | m0 <= m1 && m1 <= m}
                -> e1':LDSL p (Btwn 0 m1)
-               -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+               -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                -> γ:TyEnv' (Btwn 0 m0)
                -> γ1:{TyEnv' (Btwn 0 m1) | Just γ1 = tyEnvE e1' γ}
@@ -510,15 +510,15 @@ booleanUn1 m0 m' op e1 e λ m e' λ' m1 e1' λ1 γ γ1 γ' σ h_bool j =
 
                 -> m:{Nat | m0 <= m && m <= m'}
                 -> e':LDSL p (Btwn 0 m)
-                -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                 -> m1:{Nat | m0 <= m1 && m1 <= m}
                 -> e1':LDSL p (Btwn 0 m1)
-                -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+                -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                 -> m2:{Nat | m1 <= m2 && m2 <= m}
                 -> e2':LDSL p (Btwn 0 m2)
-                -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+                -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
                 -> γ:TyEnv' (Btwn 0 m0)
                 -> γ1:{TyEnv' (Btwn 0 m1) | Just γ1 = tyEnvE e1' γ}
@@ -587,15 +587,15 @@ booleanBin1 m0 m' op e1 e2 e λ m e' λ' m1 e1' λ1 m2 e2' λ2 γ γ1 γ2 γ' σ
 
                 -> m:{Nat | m0 <= m && m <= m'}
                 -> e':LDSL p (Btwn 0 m)
-                -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                 -> m1:{Nat | m0 <= m1 && m1 <= m}
                 -> e1':LDSL p (Btwn 0 m1)
-                -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+                -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                 -> m2:{Nat | m1 <= m2 && m2 <= m}
                 -> e2':LDSL p (Btwn 0 m2)
-                -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+                -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
                 -> γ:TyEnv' (Btwn 0 m0)
                 -> γ1:{TyEnv' (Btwn 0 m1) | Just γ1 = tyEnvE e1' γ}
@@ -661,15 +661,15 @@ booleanBin2 m0 m' op e1 e2 e λ m e' λ' m1 e1' λ1 m2 e2' λ2 γ γ1 γ2 γ' σ
 
                  -> m:{Nat | m0 <= m && m <= m'}
                  -> e':LDSL p (Btwn 0 m)
-                 -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                 -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                  -> m1:{Nat | m0 <= m1 && m1 <= m}
                  -> e1':LDSL p (Btwn 0 m1)
-                 -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+                 -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                  -> m2:{Nat | m1 <= m2 && m2 <= m}
                  -> e2':LDSL p (Btwn 0 m2)
-                 -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+                 -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
                  -> γ:TyEnv' (Btwn 0 m0)
                  -> γ1:{TyEnv' (Btwn 0 m1) | Just γ1 = tyEnvE e1' γ}
@@ -713,15 +713,15 @@ booleanCons1 m0 m' e1 e2 e λ m e' λ' m1 e1' λ1 m2 e2' λ2 γ γ1 γ2 γ' σ h
 
                  -> m:{Nat | m0 <= m && m <= m'}
                  -> e':LDSL p (Btwn 0 m)
-                 -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                 -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                  -> m1:{Nat | m0 <= m1 && m1 <= m}
                  -> e1':LDSL p (Btwn 0 m1)
-                 -> λ1:{LabelEnv p (Btwn 0 m1) | label' e1 m0 λ = (m1, e1', λ1)}
+                 -> λ1:{LabelEnv p (Btwn 0 m1) | labelE e1 m0 λ = (m1, e1', λ1)}
 
                  -> m2:{Nat | m1 <= m2 && m2 <= m}
                  -> e2':LDSL p (Btwn 0 m2)
-                 -> λ2:{LabelEnv p (Btwn 0 m2) | label' e2 m1 λ1 = (m2, e2', λ2)}
+                 -> λ2:{LabelEnv p (Btwn 0 m2) | labelE e2 m1 λ1 = (m2, e2', λ2)}
 
                  -> γ:TyEnv' (Btwn 0 m0)
                  -> γ1:{TyEnv' (Btwn 0 m1) | Just γ1 = tyEnvE e1' γ}

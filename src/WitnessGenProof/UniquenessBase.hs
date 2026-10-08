@@ -42,7 +42,7 @@ import Language.Haskell.Liquid.ProofCombinators
 
               -> m:{Nat | m0 <= m && m <= m'}
               -> e':{LDSL p (Btwn 0 m) | wfE e'}
-              -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+              -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
               -> σ:{WireValuation p m' | closedExpr m' σ e' && coherentE m' e' σ}
               -> Agree λ' ρ σ
@@ -90,7 +90,7 @@ uniqueVar m0 m' s τ e ρ λ m e' λ' σ π v γ γ' h_boolean =
 
                 -> m:{Nat | m0 <= m && m <= m'}
                 -> e':{LDSL p (Btwn 0 m) | wfE e'}
-                -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+                -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                 -> σ:{WireValuation p m' | closedExpr m' σ e' && coherentE m' e' σ}
                 -> Agree λ' ρ σ
@@ -127,7 +127,7 @@ uniqueConst m0 m' x e ρ λ m e' λ' σ π v γ γ' h_boolean = trivial
 
                -> m:{Nat | m0 <= m && m <= m'}
                -> e':{LDSL p (Btwn 0 m) | wfE e'}
-               -> λ':{LabelEnv p (Btwn 0 m) | label' e m0 λ = (m, e', λ')}
+               -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m, e', λ')}
 
                -> σ:{WireValuation p m' | closedExpr m' σ e' && coherentE m' e' σ}
                -> Agree λ' ρ σ

@@ -41,15 +41,15 @@ import Language.Haskell.Liquid.ProofCombinators
                   -> λ2:LabelEnv p (Btwn 0 m2)
 
                   -> p1':{LDSL p (Btwn 0 m1) | wfE p1' && freshE p1' σ
-                                            && label' p1 m0 λ  = (m1, p1', λ1)}
+                                            && labelE p1 m0 λ  = (m1, p1', λ1)}
                   -> σ1:{WireValuation p m | Just σ1 = witnessGenE' m ρ σ  p1'}
 
                   -> p2':{LDSL p (Btwn 0 m2) | wfE p2' && freshE p2' σ1
-                                            && label' p2 m1 λ1 = (m2, p2', λ2)}
+                                            && labelE p2 m1 λ1 = (m2, p2', λ2)}
                   -> σ2:{WireValuation p m | Just σ2 = witnessGenE' m ρ σ1 p2'}
 
                   -> λ':LabelEnv p (Btwn 0 m)
-                  -> e':{LDSL p (Btwn 0 m) | label' (BIN EQL p1 p2) m0 λ = (m, e', λ')}
+                  -> e':{LDSL p (Btwn 0 m) | labelE (BIN EQL p1 p2) m0 λ = (m, e', λ')}
                   -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'}
 
                   -> Agree λ2 ρ σ2

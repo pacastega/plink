@@ -49,7 +49,7 @@ import Language.Haskell.Liquid.ProofCombinators
                      -> Agree λ0 ρ σ0
 
                      -> e':{LDSL p (Btwn 0 m1) | freshE e' σ0}
-                     -> λ:{LabelEnv p (Btwn 0 m1) | label' e m0 λ0 = (m1, e', λ)}
+                     -> λ:{LabelEnv p (Btwn 0 m1) | labelE e m0 λ0 = (m1, e', λ)}
 
                      -> v:{DSLValue p | eval e ρ = Just v}
 
@@ -92,7 +92,7 @@ fundamentalThmE1 m0 e ρ m1 m λ0 σ0 π e' λ v =
 
                      -> a':{LAss p (Btwn 0 m1) | freshA a' σ0}
                      -> λ:{LabelEnv p (Btwn 0 m1) |
-                              labelAssertion a m0 λ0 = (m1, a', λ)}
+                              labelA a m0 λ0 = (m1, a', λ)}
 
                      -> (σ::{σ:WireValuation p m1 | Just σ = witnessGenA' m ρ σ0 a'
                                                 && coherentA m a' σ
@@ -115,7 +115,7 @@ fundamentalThmA1 m0 a ρ m1 m λ0 σ0 π0 a' λ = case a of
               ? coherentEIncr m e1' σ σ' hσ
     where
 
-    (m1,e1',λ1) = label' e1 m0 λ0
+    (m1,e1',λ1) = labelE e1 m0 λ0
 
     v1 = case eval e1 ρ of Just v -> v
     v1' = case v1 of VF v -> v
@@ -134,7 +134,7 @@ fundamentalThmA1 m0 a ρ m1 m λ0 σ0 π0 a' λ = case a of
     π' x = π x ? notElemLemma x w λ1
 
   BOOLEAN e1 -> (σ,π) ? evalWireScalar m e1' σ where
-    (m1,e1',λ1) = label' e1 m0 λ0
+    (m1,e1',λ1) = labelE e1 m0 λ0
     v1 = case eval e1 ρ of Just v -> v
     (σ,π) = fundamentalThmE1 m0 e1 ρ m1 m λ0 σ0 π0 e1' λ v1
 
@@ -147,8 +147,8 @@ fundamentalThmA1 m0 a ρ m1 m λ0 σ0 π0 a' λ = case a of
                ? liquidAssert (evalWire m e1' σ2 == v1)
     where
 
-    (m1,e1',λ1) = label' e1 m0 λ0
-    (m2,e2',λ2) = label' e2 m1 λ1
+    (m1,e1',λ1) = labelE e1 m0 λ0
+    (m2,e2',λ2) = labelE e2 m1 λ1
 
     {-@ fresh2 :: { freshE e2' σ1 } @-}
     fresh2 = disjLemma 0 m1 m2 (M.keysSet σ1) (wiresE e2')
@@ -178,7 +178,7 @@ fundamentalThmA1 m0 a ρ m1 m λ0 σ0 π0 a' λ = case a of
 
                      -> a':LAss p (Btwn 0 m1)
                      -> λ:{LabelEnv p (Btwn 0 m1) |
-                              labelAssertion a m0 λ0 = (m1, a', λ)}
+                              labelA a m0 λ0 = (m1, a', λ)}
 
                      -> σ:{WireValuation p m | closedAssertion m σ a'
                                              && coherentA m a' σ}
@@ -208,7 +208,7 @@ fundamentalThmA2 m0 a ρ m1 m λ0 a' λ σ π γ0 γ h_bool = case a of
     {-@ wtE :: { wellTyped e1 } @-}
     wtE = case inferType e1 of Just _ -> trivial
 
-    (me1,e1',λ1) = wtE ?? label' e1 m0 λ0
+    (me1,e1',λ1) = wtE ?? labelE e1 m0 λ0
 
     LNZERO _ w = a'
 
@@ -233,7 +233,7 @@ fundamentalThmA2 m0 a ρ m1 m λ0 a' λ σ π γ0 γ h_bool = case a of
     {-@ wtE :: { wellTyped e1 } @-}
     wtE = case inferType e1 of Just _ -> trivial
 
-    (me1,e1',λ1) = wtE ?? label' e1 m0 λ0
+    (me1,e1',λ1) = wtE ?? labelE e1 m0 λ0
 
     _wf = labelWF e1 m0 λ0 me1 e1' λ1
 
@@ -249,8 +249,8 @@ fundamentalThmA2 m0 a ρ m1 m λ0 a' λ σ π γ0 γ h_bool = case a of
     {-@ wtE2 :: { wellTyped e2 } @-}
     wtE2 = case inferType e2 of Just _ -> trivial
 
-    (me1,e1',λ1) = wtE1 ?? label' e1 m0  λ0
-    (me2,e2',λ2) = wtE2 ?? label' e2 me1 λ1
+    (me1,e1',λ1) = wtE1 ?? labelE e1 m0  λ0
+    (me2,e2',λ2) = wtE2 ?? labelE e2 me1 λ1
 
     _wf1 = labelWF e1 m0  λ0 me1 e1' λ1
     _wf2 = labelWF e2 me1 λ1 me2 e2' λ2

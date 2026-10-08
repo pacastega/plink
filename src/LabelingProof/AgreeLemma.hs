@@ -49,7 +49,7 @@ import Language.Haskell.Liquid.ProofCombinators
 
           -> λ':LabelEnv p (Btwn 0 m)
           -> e':{TypedLDSL p (Btwn 0 m) | freshE e' σ && wfE e'
-                               && label' (UN op p1) m0 λ = (m, e', λ')}
+                               && labelE (UN op p1) m0 λ = (m, e', λ')}
           -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'}
 
           -> Agree λ' ρ σ'
@@ -68,7 +68,7 @@ auxUn :: (Fractional p, Eq p, Ord p)
 
       -> (String -> Proof)
 auxUn m0 m p1 op ρ λ σ π λ' e' σ' x =
-  let (m1, p1', λ1) = label' p1 m0 λ
+  let (m1, p1', λ1) = labelE p1 m0 λ
       m_gt_m1 = labelIncUn op p1 m0 λ m1 p1' λ1 m e' λ'
   in sizeUn p1 op ?? case op of
   ISZERO -> agreeLemmaISZERO m0 m1 m p1 ρ λ λ1 σ π λ' p1' e' σ' σ1 π1 x
@@ -127,7 +127,7 @@ auxUn m0 m p1 op ρ λ σ π λ' e' σ' x =
 
            -> λ':LabelEnv p (Btwn 0 m)
            -> e':{TypedLDSL p (Btwn 0 m) | freshE e' σ && wfE e'
-                            && label' (BIN op p1 p2) m0 λ = (m, e', λ')}
+                            && labelE (BIN op p1 p2) m0 λ = (m, e', λ')}
            -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'}
 
            -> Agree λ' ρ σ'
@@ -146,8 +146,8 @@ auxBin :: (Fractional p, Eq p, Ord p)
 
        -> (String -> Proof)
 auxBin m0 m p1 p2 op ρ λ σ π λ' e' σ' x =
-  let (m1, p1', λ1) = label' p1 m0 λ
-      (m2, p2', λ2) = label' p2 m1 λ1
+  let (m1, p1', λ1) = labelE p1 m0 λ
+      (m2, p2', λ2) = labelE p2 m1 λ1
       m_gt_m1_m2 = labelIncBin op p1 p2 m0 λ m1 p1' λ1 m2 p2' λ2 m e' λ'
 
   in sizeBin p1 p2 op ?? case op of
@@ -214,7 +214,7 @@ auxBin m0 m p1 p2 op ρ λ σ π λ' e' σ' x =
 
             -> λ':LabelEnv p (Btwn 0 m)
             -> e':{TypedLDSL p (Btwn 0 m) | freshE e' σ && wfE e'
-                             && label' (CONS p1 p2) m0 λ = (m, e', λ')}
+                             && labelE (CONS p1 p2) m0 λ = (m, e', λ')}
             -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'}
 
             -> Agree λ' ρ σ'
@@ -234,8 +234,8 @@ auxCons :: (Fractional p, Eq p, Ord p)
         -> (String -> Proof)
 auxCons m0 m p1 p2 ρ λ σ π λ' e' σ' x =
   agreeLemmaCons m0 m1 m2 m p1 p2 ρ λ λ1 λ2 σ π λ' p1' p2' e' σ' σ1 σ2 π2 x
-    where (m1, p1', λ1) = label' p1 m0 λ
-          (m2, p2', λ2) = label' p2 m1 λ1
+    where (m1, p1', λ1) = labelE p1 m0 λ
+          (m2, p2', λ2) = labelE p2 m1 λ1
 
           m_gt_m1_m2 = labelIncCons p1 p2 m0 λ m1 p1' λ1 m2 p2' λ2 m e' λ'
 
@@ -267,7 +267,7 @@ auxCons m0 m p1 p2 ρ λ σ π λ' e' σ' x =
 
                -> λ':LabelEnv p (Btwn 0 m)
                -> e':{LDSL p (Btwn 0 m) | freshE e' σ && wfE e'
-                                       && label' e m0 λ = (m, e', λ')}
+                                       && labelE e m0 λ = (m, e', λ')}
                -> σ':{WireValuation p m | Just σ' = witnessGenE' m ρ σ e'}
 
                -> Agree λ' ρ σ'
