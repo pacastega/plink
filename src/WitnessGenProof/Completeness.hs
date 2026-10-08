@@ -81,7 +81,7 @@ auxUn m0 e1 op ρ v λ σ π m e' λ' = case op of
          ?? labelIs0 m0 e1 λ m1 e1' λ1 m e' λ'
 
     fresh1 = m_gt_m1 ?? freshIsk m e1' 0 w i σ
-    σ1 = size1 ?? wf1 ?? wt1 ?? fresh1 ?? wgLemma m1 m ρ σ e1'
+    σ1 = size1 ?? wf1 ?? wt1 ?? fresh1 ?? wgELemma m1 m ρ σ e1'
       ?? wgCompleteE m0 e1 ρ (VF v1) λ σ π m1 e1' λ1
 
     v' = typedScalarUn e1 op ?? evalScalar (UN op e1) ρ v -- VF v' == v
@@ -104,7 +104,7 @@ auxUn m0 e1 op ρ v λ σ π m e' λ' = case op of
           ? labelTyped (UN op e1) m0 λ m e' λ' -- e' is well-typed
 
     fresh1 = m_gt_m1 ?? freshIsk m e1' k w i σ
-    σ1 = size1 ?? wf1 ?? wt1 ?? fresh1 ?? wgLemma m1 m ρ σ e1'
+    σ1 = size1 ?? wf1 ?? wt1 ?? fresh1 ?? wgELemma m1 m ρ σ e1'
       ?? wgCompleteE m0 e1 ρ (VF v1) λ σ π m1 e1' λ1
 
     v' = typedScalarUn e1 op ?? evalScalar (UN op e1) ρ v -- VF v' == v
@@ -125,7 +125,7 @@ auxUn m0 e1 op ρ v λ σ π m e' λ' = case op of
     m_gt_m1 = labelIncUn op e1 m0 λ m1 e1' λ1 m e' λ'
 
     fresh1 = labelCast m0 e1 λ m1 e1' λ1 m e' λ' ?? freshCast m e1' σ
-    σ1 = size1 ?? wf1 ?? wt1 ?? fresh1 ?? wgLemma m1 m ρ σ e1'
+    σ1 = size1 ?? wf1 ?? wt1 ?? fresh1 ?? wgELemma m1 m ρ σ e1'
       ?? wgCompleteE m0 e1 ρ (VF v1) λ σ π m1 e1' λ1
 
     v' = typedScalarUn e1 op ?? evalScalar (UN op e1) ρ v -- VF v' == v
@@ -147,7 +147,7 @@ auxUn m0 e1 op ρ v λ σ π m e' λ' = case op of
       ? labelTyped (UN op e1) m0 λ m e' λ' -- e' is well-typed
 
     fresh1 = m_gt_m1 ?? freshUn m e1' op i σ
-    σ1 = size1 ?? wf1 ?? wt1 ?? fresh1 ?? wgLemma m1 m ρ σ e1'
+    σ1 = size1 ?? wf1 ?? wt1 ?? fresh1 ?? wgELemma m1 m ρ σ e1'
       ?? wgCompleteE m0 e1 ρ (VF v1) λ σ π m1 e1' λ1
 
     v' = typedScalarUn e1 op ?? evalScalar (UN op e1) ρ v -- VF v' == v
@@ -206,13 +206,13 @@ auxBin m0 e1 e2 op ρ v λ σ π m e' λ' = case op of
          ? labelTyped (BIN op e1 e2) m0 λ m e' λ' -- e' is well-typed
 
     fresh1 = m_gt_m2 ?? freshDiv1 m e1' e2' w i σ
-    σ1 = size12 ?? wf1 ?? wt1 ?? fresh1 ?? wgLemma m1 m ρ σ e1'
+    σ1 = size12 ?? wf1 ?? wt1 ?? fresh1 ?? wgELemma m1 m ρ σ e1'
       ?? wgCompleteE m0 e1 ρ (VF v1) λ σ π m1 e1' λ1
 
     π1 = wf1 ?? fresh1 ?? agreeLemma m0 m1 e1 ρ λ σ π λ1 e1' σ1
 
     fresh2 = freshDiv2 m ρ e1' e2' w i σ σ1
-    σ2 = size12 ?? wf2 ?? wt2 ?? fresh2 ?? wgLemma m2 m ρ σ1 e2'
+    σ2 = size12 ?? wf2 ?? wt2 ?? fresh2 ?? wgELemma m2 m ρ σ1 e2'
       ?? wgCompleteE m1 e2 ρ (VF v2) λ1 σ1 π1 m2 e2' λ2
 
     v' = typedScalarBin e1 e2 op ?? evalScalar (BIN op e1 e2) ρ v -- VF v' == v
@@ -242,13 +242,13 @@ auxBin m0 e1 e2 op ρ v λ σ π m e' λ' = case op of
             ? labelTyped (BIN op e1 e2) m0 λ m e' λ' -- e' is well-typed
 
     fresh1 = m_gt_m2 ?? freshEql1 m e1' e2' d w i σ
-    σ1 = size12 ?? wf1 ?? wt1 ?? fresh1 ?? wgLemma m1 m ρ σ e1'
+    σ1 = size12 ?? wf1 ?? wt1 ?? fresh1 ?? wgELemma m1 m ρ σ e1'
       ?? wgCompleteE m0 e1 ρ (VF v1) λ σ π m1 e1' λ1
 
     π1 = wf1 ?? fresh1 ?? agreeLemma m0 m1 e1 ρ λ σ π λ1 e1' σ1
 
     fresh2 = freshEql2 m ρ e1' e2' d w i σ σ1
-    σ2 = size12 ?? wf2 ?? wt2 ?? fresh2 ?? wgLemma m2 m ρ σ1 e2'
+    σ2 = size12 ?? wf2 ?? wt2 ?? fresh2 ?? wgELemma m2 m ρ σ1 e2'
       ?? wgCompleteE m1 e2 ρ (VF v2) λ1 σ1 π1 m2 e2' λ2
 
     v' = typedScalarBin e1 e2 op ?? evalScalar (BIN op e1 e2) ρ v -- VF v' == v
@@ -278,13 +278,13 @@ auxBin m0 e1 e2 op ρ v λ σ π m e' λ' = case op of
       ? labelTyped (BIN op e1 e2) m0 λ m e' λ' -- e' is well-typed
 
     fresh1 = m_gt_m2 ?? freshBin1 m e1' e2' op i σ
-    σ1 = size12 ?? wf1 ?? wt1 ?? fresh1 ?? wgLemma m1 m ρ σ e1'
+    σ1 = size12 ?? wf1 ?? wt1 ?? fresh1 ?? wgELemma m1 m ρ σ e1'
       ?? wgCompleteE m0 e1 ρ (VF v1) λ σ π m1 e1' λ1
 
     π1 = wf1 ?? fresh1 ?? agreeLemma m0 m1 e1 ρ λ σ π λ1 e1' σ1
 
     fresh2 = freshBin2 m ρ e1' e2' op i σ σ1
-    σ2 = size12 ?? wf2 ?? wt2 ?? fresh2 ?? wgLemma m2 m ρ σ1 e2'
+    σ2 = size12 ?? wf2 ?? wt2 ?? fresh2 ?? wgELemma m2 m ρ σ1 e2'
       ?? wgCompleteE m1 e2 ρ (VF v2) λ1 σ1 π1 m2 e2' λ2
 
     v' = typedScalarBin e1 e2 op ?? evalScalar (BIN op e1 e2) ρ v -- VF v' == v
@@ -340,13 +340,13 @@ auxCons m0 e1 e2 ρ v λ σ π m e' λ' = σ' where
     ? labelTyped (CONS e1 e2) m0 λ m e' λ' -- e' is well-typed
 
   fresh1 = m_gt_m2 ?? cons_thm ?? freshCons1 m e1' e2' σ
-  σ1 = size12 ?? wf1 ?? wt1 ?? fresh1 ?? wgLemma m1 m ρ σ e1'
+  σ1 = size12 ?? wf1 ?? wt1 ?? fresh1 ?? wgELemma m1 m ρ σ e1'
     ?? wgCompleteE m0 e1 ρ v1 λ σ π m1 e1' λ1
 
   π1 = wf1 ?? fresh1 ?? agreeLemma m0 m1 e1 ρ λ σ π λ1 e1' σ1
 
   fresh2 = cons_thm ?? freshCons2 m ρ e1' e2' σ σ1
-  σ2 = size12 ?? wf2 ?? wt2 ?? fresh2 ?? wgLemma m2 m ρ σ1 e2'
+  σ2 = size12 ?? wf2 ?? wt2 ?? fresh2 ?? wgELemma m2 m ρ σ1 e2'
     ?? wgCompleteE m1 e2 ρ v2 λ1 σ1 π1 m2 e2' λ2
 
   -- v' = typedScalarBin e1 e2 op ?? evalScalar (BIN op e1 e2) ρ v -- VF v' == v

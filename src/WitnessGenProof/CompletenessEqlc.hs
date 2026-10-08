@@ -74,7 +74,7 @@ wgCompleteEqlc m0 e1 k e ρ v1 v λ σ m1 e1' λ1 m e' λ' w i σ1 =
   ?? labelType e m0 λ m e' λ' -- type(e') = type(e), so e' is also scalar
   ?? wfIsk e1' k w i          -- e1' is well-formed and well-typed
 
-  ?? wgClosed m ρ σ e1' σ1 -- wires(e1') are bound in σ1
+  ?? wgEClosed m ρ σ e1' σ1 -- wires(e1') are bound in σ1
 
   ?? evalWireScalar m e1' σ1 -- evalWire(e1,σ1) = σ1[e1]
   ?? evalWireScalar m e'  σ' -- evalWire(e',σ') = σ'[e']

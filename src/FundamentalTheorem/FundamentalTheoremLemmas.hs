@@ -76,10 +76,10 @@ fundamentalThmE1 m0 e ρ m1 m λ0 σ0 π e' λ v =
   where
     wf = labelWF e m0 λ0 m1 e' λ
     wt = labelTyped e m0 λ0 m1 e' λ
-    sound = wf ?? wt ?? wgLemma m1 m ρ σ0 e' ?? wgSoundE m ρ σ0 e' σ
+    sound = wf ?? wt ?? wgELemma m1 m ρ σ0 e' ?? wgSoundE m ρ σ0 e' σ
     σ = wf ?? wgCompleteE m0 e ρ v λ0 σ0 π m1 e' λ
     σ_eq_wg = wgKeysSet m1 ρ σ0 e' σ
-    σ_closed = wgClosed m1 ρ σ0 e' σ
+    σ_closed = wgEClosed m1 ρ σ0 e' σ
     σ_eval = evalWireLemma m1 m e' σ
 
 {-@ fundamentalThmA1 :: m0:Nat -> a:Assertion p
@@ -161,7 +161,7 @@ fundamentalThmA1 m0 a ρ m1 m λ0 σ0 π0 a' λ = case a of
 
     {-@ σ2_ge_σ1 :: MapGE σ2 σ1 @-}
     σ2_ge_σ1 :: Int -> Proof
-    σ2_ge_σ1 = labelWF e2 m1 λ1 m2 e2' λ2 ?? wgIncr m ρ σ1 e2' σ2
+    σ2_ge_σ1 = labelWF e2 m1 λ1 m2 e2' λ2 ?? wgEIncr m ρ σ1 e2' σ2
 
 
 

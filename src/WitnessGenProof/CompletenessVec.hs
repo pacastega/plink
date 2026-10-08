@@ -92,13 +92,13 @@ wgCompleteCons :: (Fractional p, Ord p)
 
                -> WireValuation p -> WireValuation p -> WireValuation p
 wgCompleteCons m0 e1 e2 e ρ v1 v2 v λ σ m1 e1' λ1 m2 e2' λ2 m e' λ' σ1 σ2 = σ2
-  ? wgClosed  m ρ σ  e1' σ1            -- wires(e1') are bound in σ1
+  ? wgEClosed  m ρ σ  e1' σ1           -- wires(e1') are bound in σ1
   ?? evalWireIncr m e1' σ1 σ2 σ2_gt_σ1 -- σ2(e1') = σ1(e1') since σ2 ≥ σ1
 
   where
     σ2_gt_σ1 = labelTyped e m0 λ m e' λ'   -- e' is well-typed
             ?? freshCons2 m ρ e1' e2' σ σ1 -- wires(e2') are free in σ1
-            ?? wgIncr m ρ σ1 e2' σ2        -- σ2 ≥ σ1
+            ?? wgEIncr m ρ σ1 e2' σ2       -- σ2 ≥ σ1
 
 
 -- workarounds to fix "crash: unknown constant" --------------------------------

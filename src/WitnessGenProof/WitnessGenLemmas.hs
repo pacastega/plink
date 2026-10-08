@@ -22,31 +22,31 @@ import Language.Haskell.Liquid.ProofCombinators
 
 
 -- wgE ignores its first argument ----------------------------------------------
-{-@ wgLemma :: m:Nat -> m':{Nat | m' >= m}
-            -> ρ:NameValuation p -> σ:WireValuation p m
-            -> e:{TypedLDSL p (Btwn 0 m) | wfE e && freshE e σ}
-            -> { witnessGenE m ρ σ e == witnessGenE m' ρ σ e } @-}
-wgLemma :: (Eq p, Fractional p) => Int -> Int
-        -> NameValuation p -> WireValuation p -> LDSL p Int -> Proof
-wgLemma m m' ρ σ e = case e of
+{-@ wgELemma :: m:Nat -> m':{Nat | m' >= m}
+             -> ρ:NameValuation p -> σ:WireValuation p m
+             -> e:{TypedLDSL p (Btwn 0 m) | wfE e && freshE e σ}
+             -> { witnessGenE m ρ σ e == witnessGenE m' ρ σ e } @-}
+wgELemma :: (Eq p, Fractional p) => Int -> Int
+         -> NameValuation p -> WireValuation p -> LDSL p Int -> Proof
+wgELemma m m' ρ σ e = case e of
   PTR {}  -> trivial
   LVAR {} -> trivial
   LCONST {} -> trivial
   LBOOL  {} -> trivial
 
-  LDIV e1 e2 _ _ -> wgLemma m m' ρ σ e1 ? case witnessGenE m ρ σ e1 of
-    Nothing -> trivial; Just σ1 -> wgLemma m m' ρ σ1 e2
+  LDIV e1 e2 _ _ -> wgELemma m m' ρ σ e1 ? case witnessGenE m ρ σ e1 of
+    Nothing -> trivial; Just σ1 -> wgELemma m m' ρ σ1 e2
 
-  LUN _ e1 _ -> wgLemma m m' ρ σ e1
-  LBIN _ e1 e2 _ -> wgLemma m m' ρ σ e1 ? case witnessGenE m ρ σ e1 of
-    Nothing -> trivial; Just σ1 -> wgLemma m m' ρ σ1 e2
+  LUN _ e1 _ -> wgELemma m m' ρ σ e1
+  LBIN _ e1 e2 _ -> wgELemma m m' ρ σ e1 ? case witnessGenE m ρ σ e1 of
+    Nothing -> trivial; Just σ1 -> wgELemma m m' ρ σ1 e2
 
-  LBoolToF e1 -> wgLemma m m' ρ σ e1
-  LEQLC e1 _ _ _ -> wgLemma m m' ρ σ e1
+  LBoolToF e1 -> wgELemma m m' ρ σ e1
+  LEQLC e1 _ _ _ -> wgELemma m m' ρ σ e1
 
   LNIL _ ->  trivial
-  LCONS e1 e2 -> wgLemma m m' ρ σ e1 ? case witnessGenE m ρ σ e1 of
-    Nothing -> trivial; Just σ1 -> wgLemma m m' ρ σ1 e2
+  LCONS e1 e2 -> wgELemma m m' ρ σ e1 ? case witnessGenE m ρ σ e1 of
+    Nothing -> trivial; Just σ1 -> wgELemma m m' ρ σ1 e2
 
 -- wgA ignores its first argument ----------------------------------------------
 {-@ wgALemma :: m:Nat -> m':{Nat | m' >= m}
@@ -57,14 +57,14 @@ wgALemma :: (Eq p, Fractional p) => Int -> Int
          -> NameValuation p -> WireValuation p -> LAss p Int -> Proof
 wgALemma m m' ρ σ0 a = case a of
   LNZERO e1 w -> case inferType' e1 of
-    Just _ -> wgLemma m m' ρ σ0 e1
+    Just _ -> wgELemma m m' ρ σ0 e1
   LBOOLEAN e1 -> case inferType' e1 of
-    Just _ -> wgLemma m m' ρ σ0 e1
+    Just _ -> wgELemma m m' ρ σ0 e1
   LEQA e1 e2 -> case inferType' e1 of
-    Just _ -> wgLemma m m' ρ σ0 e1 ? case witnessGenE m ρ σ0 e1 of
+    Just _ -> wgELemma m m' ρ σ0 e1 ? case witnessGenE m ρ σ0 e1 of
       Nothing -> trivial
       Just σ1 -> case inferType' e2 of
-        Just _ -> wgLemma m m' ρ σ1 e2
+        Just _ -> wgELemma m m' ρ σ1 e2
 
 
 -- WG always produces values in {0,1} for Bool-typed expressions ---------------
@@ -96,32 +96,32 @@ wgBoolean m ρ σ e σ' = case e of
 
 -- WG never "updates" old keys, only adds new ones -----------------------------
 -- Essentially, "witnessGenE(σ,e) ≥ σ"
-{-@ wgIncr :: m:Nat -> ρ:NameValuation p -> σ:WireValuation p m
-           -> {e:TypedLDSL p (Btwn 0 m) | wfE e && freshE e σ}
-           -> {σ':WireValuation p m | Just σ' = witnessGenE m ρ σ e}
-           -> MapGE σ' σ @-}
-wgIncr :: (Eq p, Fractional p) => Int -> NameValuation p -> WireValuation p
-       -> LDSL p Int -> WireValuation p -> (Int -> Proof)
-wgIncr m ρ σ e σ' j = case e of
+{-@ wgEIncr :: m:Nat -> ρ:NameValuation p -> σ:WireValuation p m
+            -> {e:TypedLDSL p (Btwn 0 m) | wfE e && freshE e σ}
+            -> {σ':WireValuation p m | Just σ' = witnessGenE m ρ σ e}
+            -> MapGE σ' σ @-}
+wgEIncr :: (Eq p, Fractional p) => Int -> NameValuation p -> WireValuation p
+        -> LDSL p Int -> WireValuation p -> (Int -> Proof)
+wgEIncr m ρ σ e σ' j = case e of
   PTR    τ i -> trivial ? witnessGenE m ρ σ e
   LVAR s τ i -> case τ of
     TF -> trivial
     TBool -> trivial
   LCONST x i -> trivial
   LBOOL  b i -> trivial
-  LDIV e1 e2 w i -> wgIncr m ρ σ  e1 σ1 j ? wgIncr m ρ σ1 e2 σ2 j
+  LDIV e1 e2 w i -> wgEIncr m ρ σ  e1 σ1 j ? wgEIncr m ρ σ1 e2 σ2 j
     where σ1 = case witnessGenE m ρ σ  e1 of Just s -> s
           σ2 = case witnessGenE m ρ σ1 e2 of Just s -> s
-  LUN op e1 i -> wgIncr m ρ σ  e1 σ1 j
+  LUN op e1 i -> wgEIncr m ρ σ  e1 σ1 j
     where σ1 = case witnessGenE m ρ σ e1 of Just s -> s
-  LBIN op e1 e2 i -> wgIncr m ρ σ  e1 σ1 j ? wgIncr m ρ σ1 e2 σ2 j
+  LBIN op e1 e2 i -> wgEIncr m ρ σ  e1 σ1 j ? wgEIncr m ρ σ1 e2 σ2 j
     where σ1 = case witnessGenE m ρ σ  e1 of Just s -> s
           σ2 = case witnessGenE m ρ σ1 e2 of Just s -> s
-  LBoolToF e1 -> wgIncr m ρ σ e1 σ' j
-  LEQLC e1 k w i -> wgIncr m ρ σ  e1 σ1 j
+  LBoolToF e1 -> wgEIncr m ρ σ e1 σ' j
+  LEQLC e1 k w i -> wgEIncr m ρ σ  e1 σ1 j
     where σ1 = case witnessGenE m ρ σ e1 of Just s -> s
   LNIL _ -> trivial
-  LCONS e1 e2 -> wgIncr m ρ σ  e1 σ1 j ? wgIncr m ρ σ1 e2 σ2 j
+  LCONS e1 e2 -> wgEIncr m ρ σ  e1 σ1 j ? wgEIncr m ρ σ1 e2 σ2 j
     where σ1 = case witnessGenE m ρ σ  e1 of Just s -> s
           σ2 = case witnessGenE m ρ σ1 e2 of Just s -> s
 
@@ -134,15 +134,15 @@ wgAIncr :: (Eq p, Fractional p) => Int -> NameValuation p -> WireValuation p
 wgAIncr m ρ σ a σ' j = case a of
   LNZERO e1 w -> case inferType' e1 of
     Just _ -> case witnessGenE m ρ σ e1 of
-      Just σ' -> wgIncr m ρ σ e1 σ' j
+      Just σ' -> wgEIncr m ρ σ e1 σ' j
   LBOOLEAN e1 -> case inferType' e1 of
     Just _ -> case witnessGenE m ρ σ e1 of
-      Just σ' -> wgIncr m ρ σ e1 σ' j
+      Just σ' -> wgEIncr m ρ σ e1 σ' j
   LEQA e1 e2  -> case inferType' e1 of
     Just _ -> case inferType' e2 of
       Just _ -> case witnessGenE m ρ σ e1 of
         Just σ1 -> case witnessGenE m ρ σ1 e2 of
-          Just σ' -> wgIncr m ρ σ  e1 σ1 j ?? wgIncr m ρ σ1 e2 σ' j
+          Just σ' -> wgEIncr m ρ σ  e1 σ1 j ?? wgEIncr m ρ σ1 e2 σ' j
 
 {-@ wgAsIncr :: m:Nat -> ρ:NameValuation p -> σ:WireValuation p m
              -> {as:[LAss p (Btwn 0 m)] | wfAs as && freshAs as σ}
@@ -159,13 +159,13 @@ wgAsIncr m ρ σ store σ' j = case store of
 
 -- WG produces valuations that bind all wires in the expression ----------------
 
-{-@ wgClosed :: m:Nat -> ρ:NameValuation p -> σ:WireValuation p m
-               -> e':{TypedLDSL p (Btwn 0 m) | wfE e' && freshE e' σ}
-               -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e'}
-               -> { closedExpr m σ' e' } @-}
-wgClosed :: (Eq p, Fractional p) => Int -> NameValuation p -> WireValuation p
-           -> LDSL p Int -> WireValuation p -> Proof
-wgClosed m ρ σ e' σ' = case witnessGenE m ρ σ e' of Just _ -> trivial
+{-@ wgEClosed :: m:Nat -> ρ:NameValuation p -> σ:WireValuation p m
+              -> e':{TypedLDSL p (Btwn 0 m) | wfE e' && freshE e' σ}
+              -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e'}
+              -> { closedExpr m σ' e' } @-}
+wgEClosed :: (Eq p, Fractional p) => Int -> NameValuation p -> WireValuation p
+          -> LDSL p Int -> WireValuation p -> Proof
+wgEClosed m ρ σ e' σ' = case witnessGenE m ρ σ e' of Just _ -> trivial
 
 {-@ wgAClosed :: m:Nat -> ρ:NameValuation p -> σ:WireValuation p m
               -> a':{LAss p (Btwn 0 m) | wfA a' && freshA a' σ}
@@ -204,7 +204,7 @@ wgAsClosed m ρ σ st' σ' = case st' of
        -> NameValuation p -> WireValuation p
        -> LDSL p Int -> LDSL p Int
        -> WireValuation p -> WireValuation p
-σ1Cast m1 m ρ σ e1 _e _σ' = wgLemma m1 m ρ σ e1 ??
+σ1Cast m1 m ρ σ e1 _e _σ' = wgELemma m1 m ρ σ e1 ??
   case witnessGenE m1 ρ σ e1 of Just σ1 -> σ1
 
 
@@ -222,7 +222,7 @@ wgAsClosed m ρ σ st' σ' = case st' of
       -> LDSL p Int -> LDSL p Int -> Int -> Int
       -> LDSL p Int -> WireValuation p
       -> WireValuation p
-σ1Div m1 m ρ σ e1 _e2 _w _i _e _σ' = wgLemma m1 m ρ σ e1 ??
+σ1Div m1 m ρ σ e1 _e2 _w _i _e _σ' = wgELemma m1 m ρ σ e1 ??
   case witnessGenE m1 ρ σ e1 of Just σ1 -> σ1
 
 {-@ σ2Div :: m2:Nat -> m:{Nat | m >= m2}
@@ -240,8 +240,8 @@ wgAsClosed m ρ σ st' σ' = case st' of
       -> LDSL p Int -> WireValuation p -> WireValuation p
       -> WireValuation p
 σ2Div m2 m ρ σ e1 e2 _w _i _e _σ' _σ1 =
-  wgLemma m2 m ρ σ e1 ?? case witnessGenE m2 ρ σ e1 of
-    Just σ1 -> wgLemma m2 m ρ σ1 e2 ?? case witnessGenE m2 ρ σ1 e2 of
+  wgELemma m2 m ρ σ e1 ?? case witnessGenE m2 ρ σ e1 of
+    Just σ1 -> wgELemma m2 m ρ σ1 e2 ?? case witnessGenE m2 ρ σ1 e2 of
       Just σ2 -> σ2
 
 
@@ -259,7 +259,7 @@ wgAsClosed m ρ σ st' σ' = case st' of
       -> LDSL p Int -> LDSL p Int -> Int -> Int -> Int
       -> LDSL p Int -> WireValuation p
       -> WireValuation p
-σ1Eql m1 m ρ σ e1 _e2 _d _w _i _e _σ' = wgLemma m1 m ρ σ e1 ??
+σ1Eql m1 m ρ σ e1 _e2 _d _w _i _e _σ' = wgELemma m1 m ρ σ e1 ??
   case witnessGenE m1 ρ σ e1 of Just σ1 -> σ1
 
 {-@ σ2Eql :: m2:Nat -> m:{Nat | m >= m2}
@@ -277,8 +277,8 @@ wgAsClosed m ρ σ st' σ' = case st' of
       -> LDSL p Int -> WireValuation p -> WireValuation p
       -> WireValuation p
 σ2Eql m2 m ρ σ e1 e2 _d _w _i _e _σ' _σ1 =
-  wgLemma m2 m ρ σ e1 ?? case witnessGenE m2 ρ σ e1 of
-    Just σ1 -> wgLemma m2 m ρ σ1 e2 ?? case witnessGenE m2 ρ σ1 e2 of
+  wgELemma m2 m ρ σ e1 ?? case witnessGenE m2 ρ σ e1 of
+    Just σ1 -> wgELemma m2 m ρ σ1 e2 ?? case witnessGenE m2 ρ σ1 e2 of
       Just σ2 -> σ2
 
 
@@ -296,7 +296,7 @@ wgAsClosed m ρ σ st' σ' = case st' of
       -> LDSL p Int -> p -> Int -> Int
       -> LDSL p Int -> WireValuation p
       -> WireValuation p
-σ1Isk m1 m ρ σ e1 k _w _i _e _σ' = wgLemma m1 m ρ σ e1 ??
+σ1Isk m1 m ρ σ e1 k _w _i _e _σ' = wgELemma m1 m ρ σ e1 ??
   case witnessGenE m1 ρ σ e1 of Just σ1 -> σ1
 
 
@@ -313,7 +313,7 @@ wgAsClosed m ρ σ st' σ' = case st' of
      -> LDSL p Int -> UnOp p -> Int
      -> LDSL p Int -> WireValuation p
      -> WireValuation p
-σ1Un m1 m ρ σ e1 op _i _e _σ' = wgLemma m1 m ρ σ e1 ??
+σ1Un m1 m ρ σ e1 op _i _e _σ' = wgELemma m1 m ρ σ e1 ??
   case witnessGenE m1 ρ σ e1 of Just σ1 -> σ1
 
 
@@ -331,7 +331,7 @@ wgAsClosed m ρ σ st' σ' = case st' of
       -> LDSL p Int -> LDSL p Int -> BinOp p -> Int
       -> LDSL p Int -> WireValuation p
       -> WireValuation p
-σ1Bin m1 m ρ σ e1 _e2 _op _i _e _σ' = wgLemma m1 m ρ σ e1 ??
+σ1Bin m1 m ρ σ e1 _e2 _op _i _e _σ' = wgELemma m1 m ρ σ e1 ??
   case witnessGenE m1 ρ σ e1 of Just σ1 -> σ1
 
 {-@ σ2Bin :: m2:Nat -> m:{Nat | m >= m2}
@@ -349,8 +349,8 @@ wgAsClosed m ρ σ st' σ' = case st' of
       -> LDSL p Int -> WireValuation p -> WireValuation p
       -> WireValuation p
 σ2Bin m2 m ρ σ e1 e2 _op _i _e _σ' _σ1 =
-  wgLemma m2 m ρ σ e1 ?? case witnessGenE m2 ρ σ e1 of
-    Just σ1 -> wgLemma m2 m ρ σ1 e2 ?? case witnessGenE m2 ρ σ1 e2 of
+  wgELemma m2 m ρ σ e1 ?? case witnessGenE m2 ρ σ e1 of
+    Just σ1 -> wgELemma m2 m ρ σ1 e2 ?? case witnessGenE m2 ρ σ1 e2 of
       Just σ2 -> σ2
 
 
@@ -367,7 +367,7 @@ wgAsClosed m ρ σ st' σ' = case st' of
        -> LDSL p Int -> LDSL p Int
        -> LDSL p Int -> WireValuation p
        -> WireValuation p
-σ1Cons m1 m ρ σ e1 _e2 _e _σ' = wgLemma m1 m ρ σ e1 ??
+σ1Cons m1 m ρ σ e1 _e2 _e _σ' = wgELemma m1 m ρ σ e1 ??
   case witnessGenE m1 ρ σ e1 of Just σ1 -> σ1
 
 {-@ σ2Cons :: m2:Nat -> m:{Nat | m >= m2}
@@ -384,8 +384,8 @@ wgAsClosed m ρ σ st' σ' = case st' of
        -> LDSL p Int -> WireValuation p -> WireValuation p
        -> WireValuation p
 σ2Cons m2 m ρ σ e1 e2 _e _σ' _σ1 =
-  wgLemma m2 m ρ σ e1 ?? case witnessGenE m2 ρ σ e1 of
-    Just σ1 -> wgLemma m2 m ρ σ1 e2 ?? case witnessGenE m2 ρ σ1 e2 of
+  wgELemma m2 m ρ σ e1 ?? case witnessGenE m2 ρ σ e1 of
+    Just σ1 -> wgELemma m2 m ρ σ1 e2 ?? case witnessGenE m2 ρ σ1 e2 of
       Just σ2 -> σ2
 
 
@@ -398,7 +398,7 @@ wgAsClosed m ρ σ st' σ' = case st' of
 wgOutputMem :: (Fractional p, Eq p) => Int
             -> NameValuation p -> WireValuation p -> LDSL p Int
             -> WireValuation p -> Proof
-wgOutputMem m ρ σ e σ' = wgClosed m ρ σ e σ' ? outputWire e
+wgOutputMem m ρ σ e σ' = wgEClosed m ρ σ e σ' ? outputWire e
 
 
 {-@ wgOutputMemDiv :: m:Nat -> ρ:NameValuation p -> σ:WireValuation p m
@@ -412,7 +412,7 @@ wgOutputMemDiv :: (Fractional p, Eq p) => Int
                -> NameValuation p -> WireValuation p -> LDSL p Int -> LDSL p Int
                -> Int -> Int -> LDSL p Int
                -> WireValuation p -> Proof
-wgOutputMemDiv m ρ σ e1 e2 w i e σ' = wgClosed m ρ σ e σ'
+wgOutputMemDiv m ρ σ e1 e2 w i e σ' = wgEClosed m ρ σ e σ'
 
 
 {-@ wgOutputMemIsk :: m:Nat -> ρ:NameValuation p -> σ:WireValuation p m
@@ -426,7 +426,7 @@ wgOutputMemIsk :: (Fractional p, Eq p) => Int
                -> NameValuation p -> WireValuation p -> LDSL p Int -> p
                -> Int -> Int -> LDSL p Int
                -> WireValuation p -> Proof
-wgOutputMemIsk m ρ σ e1 k w i e σ' = wgClosed m ρ σ e σ'
+wgOutputMemIsk m ρ σ e1 k w i e σ' = wgEClosed m ρ σ e σ'
 
 
 -- if σ' = wg(σ,e), then keys(σ') = keys(σ) ∪ wires(e) -------------------------
@@ -442,99 +442,11 @@ wgKeysSet m ρ σ e σ' = case witnessGenE m ρ σ e of Just _ -> trivial
 
 -- values assigned by WG to output (and witness) wires -------------------------
 
-{-@ wgLemmaUn :: m:Nat
-              -> e1:LDSL p (Btwn 0 m)
-              -> op:UnOp' p
-              -> i:Btwn 0 m
-              -> e:{LDSL p (Btwn 0 m) | e = LUN op e1 i && wellTyped' e && wfE e}
-              -> ρ:NameValuation p
-              -> σ:{WireValuation p m | freshE e σ}
-
-              -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e}
-              -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ e1}
-
-              -> v1:{p | v1 = M.lookup' (outputWire e1) σ1}
-
-              -> { M.lookup' i σ' = valueUnOp op v1 } @-}
-wgLemmaUn :: (Fractional p, Eq p, Ord p)
-           => Int -> LDSL p Int -> UnOp p -> Int -> LDSL p Int
-           -> NameValuation p -> WireValuation p
-
-           -> WireValuation p -> WireValuation p
-           -> p
-
-           -> Proof
-wgLemmaUn m e1 op i e ρ σ σ' σ1 v1 = case witnessGenE m ρ σ e1 of
-  Just _ -> trivial
-
-{-@ wgLemmaBin :: m:Nat
+{-@ wgELemmaUn :: m:Nat
                -> e1:LDSL p (Btwn 0 m)
-               -> e2:LDSL p (Btwn 0 m)
-               -> op:BinOp' p
+               -> op:UnOp' p
                -> i:Btwn 0 m
-               -> e:{LDSL p (Btwn 0 m) | e = LBIN op e1 e2 i
-                                      && wellTyped' e && wfE e}
-               -> ρ:NameValuation p
-               -> σ:{WireValuation p m | freshE e σ}
-
-               -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ  e}
-               -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ  e1}
-               -> σ2:{WireValuation p m | Just σ2 = witnessGenE m ρ σ1 e2}
-
-               -> v1:{p | v1 = M.lookup' (outputWire e1) σ1}
-               -> v2:{p | v2 = M.lookup' (outputWire e2) σ2}
-
-               -> { M.lookup' i σ' = valueBinOp op v1 v2 } @-}
-wgLemmaBin :: (Fractional p, Eq p, Ord p)
-           => Int -> LDSL p Int -> LDSL p Int -> BinOp p -> Int -> LDSL p Int
-           -> NameValuation p -> WireValuation p
-
-           -> WireValuation p -> WireValuation p -> WireValuation p
-           -> p -> p
-
-           -> Proof
-wgLemmaBin m e1 e2 op i e ρ σ σ' σ1 σ2 v1 v2 = case witnessGenE m ρ σ e1 of
-  Just _ -> case witnessGenE m ρ σ1 e2 of
-    Just _ -> trivial
-
-
-{-@ wgLemmaDiv :: m:Nat
-               -> e1:LDSL p (Btwn 0 m)
-               -> e2:LDSL p (Btwn 0 m)
-               -> w:Btwn 0 m -> i:Btwn 0 m
-               -> e:{LDSL p (Btwn 0 m) | e = LDIV e1 e2 w i
-                                      && wellTyped' e && wfE e}
-               -> ρ:NameValuation p
-               -> σ:{WireValuation p m | freshE e σ}
-
-               -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ  e}
-               -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ  e1}
-               -> σ2:{WireValuation p m | Just σ2 = witnessGenE m ρ σ1 e2}
-
-               -> v1:{p | v1 = M.lookup' (outputWire e1) σ1}
-               -> v2:{p | v2 = M.lookup' (outputWire e2) σ2}
-
-               -> { v2 /= 0 &&
-                    M.lookup' i σ' = v1 / v2 &&
-                    M.lookup' w σ' =  1 / v2 } @-}
-wgLemmaDiv :: (Fractional p, Eq p, Ord p)
-           => Int -> LDSL p Int -> LDSL p Int -> Int -> Int -> LDSL p Int
-           -> NameValuation p -> WireValuation p
-
-           -> WireValuation p -> WireValuation p -> WireValuation p
-           -> p -> p
-
-           -> Proof
-wgLemmaDiv m e1 e2 w i e ρ σ σ' σ1 σ2 v1 v2 = case witnessGenE m ρ σ e1 of
-  Just _ -> case witnessGenE m ρ σ1 e2 of
-    Just _ -> liquidAssert (σ' == M.insert w (1 / v2) (M.insert i (v1 / v2) σ2))
-
-
-{-@ wgLemmaIsk :: m:Nat
-               -> e1:LDSL p (Btwn 0 m) -> k:p
-               -> w:Btwn 0 m -> i:Btwn 0 m
-               -> e:{LDSL p (Btwn 0 m) | e = LEQLC e1 k w i
-                                     && wellTyped' e && wfE e}
+               -> e:{LDSL p (Btwn 0 m) | e = LUN op e1 i && wellTyped' e && wfE e}
                -> ρ:NameValuation p
                -> σ:{WireValuation p m | freshE e σ}
 
@@ -543,17 +455,105 @@ wgLemmaDiv m e1 e2 w i e ρ σ σ' σ1 σ2 v1 v2 = case witnessGenE m ρ σ e1 o
 
                -> v1:{p | v1 = M.lookup' (outputWire e1) σ1}
 
-               -> { M.lookup' i σ' = valueIsk_i k v1 &&
-                    M.lookup' w σ' = valueIsk_w k v1 } @-}
-wgLemmaIsk :: (Fractional p, Ord p)
-           => Int -> LDSL p Int -> p -> Int -> Int -> LDSL p Int
+               -> { M.lookup' i σ' = valueUnOp op v1 } @-}
+wgELemmaUn :: (Fractional p, Eq p, Ord p)
+           => Int -> LDSL p Int -> UnOp p -> Int -> LDSL p Int
            -> NameValuation p -> WireValuation p
 
            -> WireValuation p -> WireValuation p
            -> p
 
            -> Proof
-wgLemmaIsk m e1 k w i e ρ σ σ' σ1 v1 = case witnessGenE m ρ σ e1 of
+wgELemmaUn m e1 op i e ρ σ σ' σ1 v1 = case witnessGenE m ρ σ e1 of
+  Just _ -> trivial
+
+{-@ wgELemmaBin :: m:Nat
+                -> e1:LDSL p (Btwn 0 m)
+                -> e2:LDSL p (Btwn 0 m)
+                -> op:BinOp' p
+                -> i:Btwn 0 m
+                -> e:{LDSL p (Btwn 0 m) | e = LBIN op e1 e2 i
+                                      && wellTyped' e && wfE e}
+                -> ρ:NameValuation p
+                -> σ:{WireValuation p m | freshE e σ}
+
+                -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ  e}
+                -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ  e1}
+                -> σ2:{WireValuation p m | Just σ2 = witnessGenE m ρ σ1 e2}
+
+                -> v1:{p | v1 = M.lookup' (outputWire e1) σ1}
+                -> v2:{p | v2 = M.lookup' (outputWire e2) σ2}
+
+                -> { M.lookup' i σ' = valueBinOp op v1 v2 } @-}
+wgELemmaBin :: (Fractional p, Eq p, Ord p)
+            => Int -> LDSL p Int -> LDSL p Int -> BinOp p -> Int -> LDSL p Int
+            -> NameValuation p -> WireValuation p
+
+            -> WireValuation p -> WireValuation p -> WireValuation p
+            -> p -> p
+
+            -> Proof
+wgELemmaBin m e1 e2 op i e ρ σ σ' σ1 σ2 v1 v2 = case witnessGenE m ρ σ e1 of
+  Just _ -> case witnessGenE m ρ σ1 e2 of
+    Just _ -> trivial
+
+
+{-@ wgELemmaDiv :: m:Nat
+                -> e1:LDSL p (Btwn 0 m)
+                -> e2:LDSL p (Btwn 0 m)
+                -> w:Btwn 0 m -> i:Btwn 0 m
+                -> e:{LDSL p (Btwn 0 m) | e = LDIV e1 e2 w i
+                                       && wellTyped' e && wfE e}
+                -> ρ:NameValuation p
+                -> σ:{WireValuation p m | freshE e σ}
+
+                -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ  e}
+                -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ  e1}
+                -> σ2:{WireValuation p m | Just σ2 = witnessGenE m ρ σ1 e2}
+
+                -> v1:{p | v1 = M.lookup' (outputWire e1) σ1}
+                -> v2:{p | v2 = M.lookup' (outputWire e2) σ2}
+
+                -> { v2 /= 0 &&
+                     M.lookup' i σ' = v1 / v2 &&
+                     M.lookup' w σ' =  1 / v2 } @-}
+wgELemmaDiv :: (Fractional p, Eq p, Ord p)
+            => Int -> LDSL p Int -> LDSL p Int -> Int -> Int -> LDSL p Int
+            -> NameValuation p -> WireValuation p
+
+            -> WireValuation p -> WireValuation p -> WireValuation p
+            -> p -> p
+
+            -> Proof
+wgELemmaDiv m e1 e2 w i e ρ σ σ' σ1 σ2 v1 v2 = case witnessGenE m ρ σ e1 of
+  Just _ -> case witnessGenE m ρ σ1 e2 of
+    Just _ -> liquidAssert (σ' == M.insert w (1 / v2) (M.insert i (v1 / v2) σ2))
+
+
+{-@ wgELemmaIsk :: m:Nat
+                -> e1:LDSL p (Btwn 0 m) -> k:p
+                -> w:Btwn 0 m -> i:Btwn 0 m
+                -> e:{LDSL p (Btwn 0 m) | e = LEQLC e1 k w i
+                                      && wellTyped' e && wfE e}
+                -> ρ:NameValuation p
+                -> σ:{WireValuation p m | freshE e σ}
+
+                -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e}
+                -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ e1}
+
+                -> v1:{p | v1 = M.lookup' (outputWire e1) σ1}
+
+                -> { M.lookup' i σ' = valueIsk_i k v1 &&
+                     M.lookup' w σ' = valueIsk_w k v1 } @-}
+wgELemmaIsk :: (Fractional p, Ord p)
+            => Int -> LDSL p Int -> p -> Int -> Int -> LDSL p Int
+            -> NameValuation p -> WireValuation p
+
+            -> WireValuation p -> WireValuation p
+            -> p
+
+            -> Proof
+wgELemmaIsk m e1 k w i e ρ σ σ' σ1 v1 = case witnessGenE m ρ σ e1 of
   Just _ -> trivial
 
 {-@ reflect valueIsk_i @-}
@@ -568,111 +568,11 @@ valueIsk_w k v = if v == k then zero else 1/(v-k)
 -- WG increasing ---------------------------------------------------------------
 
 -- wg(σ, e1/e2) ≥ wg(wg(σ, e1), e2)
-{-@ wgIncrDiv :: m:Nat
-              -> e1:LDSL p (Btwn 0 m)
-              -> e2:LDSL p (Btwn 0 m)
-              -> w:Btwn 0 m -> i:Btwn 0 m
-              -> e:{LDSL p (Btwn 0 m) | e = LDIV e1 e2 w i
-                                      && wellTyped' e && wfE e}
-              -> ρ:NameValuation p
-              -> σ:{WireValuation p m | freshE e σ}
-
-              -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ  e}
-              -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ  e1}
-              -> σ2:{WireValuation p m | Just σ2 = witnessGenE m ρ σ1 e2}
-
-              -> MapGE σ' σ2 @-}
-wgIncrDiv :: (Fractional p, Eq p)
-          => Int -> LDSL p Int -> LDSL p Int -> Int -> Int -> LDSL p Int
-          -> NameValuation p -> WireValuation p
-
-          -> WireValuation p -> WireValuation p -> WireValuation p
-          -> (Int -> Proof)
-wgIncrDiv m e1 e2 w i e ρ σ σ' σ1 σ2 j = case witnessGenE m ρ σ e1 of
-  Just _ -> case witnessGenE m ρ σ1 e2 of
-    Just _ -> trivial
-
-
--- wg(σ, □e1) ≥ wg(σ, e1)
-{-@ wgIncrUn :: m:Nat
-             -> e1:LDSL p (Btwn 0 m)
-             -> op:UnOp' p
-             -> i:Btwn 0 m
-             -> e:{LDSL p (Btwn 0 m) | e = LUN op e1 i
-                                      && wellTyped' e && wfE e}
-             -> ρ:NameValuation p
-             -> σ:{WireValuation p m | freshE e σ}
-
-             -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e}
-             -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ e1}
-
-             -> MapGE σ' σ1 @-}
-wgIncrUn :: (Fractional p, Eq p)
-         => Int -> LDSL p Int -> UnOp p -> Int -> LDSL p Int
-         -> NameValuation p -> WireValuation p
-
-         -> WireValuation p -> WireValuation p
-         -> (Int -> Proof)
-wgIncrUn m e1 op i e ρ σ σ' σ1 j = case witnessGenE m ρ σ e1 of
-  Just _ -> trivial
-
-
--- wg(σ, e1⮾e2) ≥ wg(wg(σ, e1), e2)
-{-@ wgIncrBin :: m:Nat
-              -> e1:LDSL p (Btwn 0 m)
-              -> e2:LDSL p (Btwn 0 m)
-              -> op:BinOp' p
-              -> i:Btwn 0 m
-              -> e:{LDSL p (Btwn 0 m) | e = LBIN op e1 e2 i
-                                      && wellTyped' e && wfE e}
-              -> ρ:NameValuation p
-              -> σ:{WireValuation p m | freshE e σ}
-
-              -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ  e}
-              -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ  e1}
-              -> σ2:{WireValuation p m | Just σ2 = witnessGenE m ρ σ1 e2}
-
-              -> MapGE σ' σ2 @-}
-wgIncrBin :: (Fractional p, Eq p)
-          => Int -> LDSL p Int -> LDSL p Int -> BinOp p -> Int -> LDSL p Int
-          -> NameValuation p -> WireValuation p
-
-          -> WireValuation p -> WireValuation p -> WireValuation p
-          -> (Int -> Proof)
-wgIncrBin m e1 e2 op i e ρ σ σ' σ1 σ2 j = case witnessGenE m ρ σ e1 of
-  Just _ -> case witnessGenE m ρ σ1 e2 of
-    Just _ -> trivial
-
-
--- wg(σ, e1==0) ≥ wg(σ, e1)
-{-@ wgIncrIsk :: m:Nat
-              -> e1:LDSL p (Btwn 0 m) -> k:p
-              -> w:Btwn 0 m -> i:Btwn 0 m
-              -> e:{LDSL p (Btwn 0 m) | e = LEQLC e1 k w i
-                                     && wellTyped' e && wfE e}
-              -> ρ:NameValuation p
-              -> σ:{WireValuation p m | freshE e σ}
-
-              -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e}
-              -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ e1}
-
-              -> j:{Int | M.member j σ1}
-              -> { M.member j σ' && M.lookup' j σ1 == M.lookup' j σ' } @-}
--- inlining of the "MapGE" type alias; doesn't seem to work otherwise
-wgIncrIsk :: (Fractional p, Eq p)
-          => Int -> LDSL p Int -> p -> Int -> Int -> LDSL p Int
-          -> NameValuation p -> WireValuation p
-
-          -> WireValuation p -> WireValuation p
-          -> (Int -> Proof)
-wgIncrIsk m e1 k w i e ρ σ σ' σ1 j = case witnessGenE m ρ σ e1 of
-  Just _ -> trivial
-
-
--- wg(σ, e1::e2) ≥ wg(wg(σ, e1), e2)
-{-@ wgIncrCons :: m:Nat
-               -> e1:LDSL p (Btwn 0 m) -> e2:LDSL p (Btwn 0 m)
-               -> e:{LDSL p (Btwn 0 m) | e = LCONS e1 e2
+{-@ wgEIncrDiv :: m:Nat
+               -> e1:LDSL p (Btwn 0 m)
+               -> e2:LDSL p (Btwn 0 m)
+               -> w:Btwn 0 m -> i:Btwn 0 m
+               -> e:{LDSL p (Btwn 0 m) | e = LDIV e1 e2 w i
                                       && wellTyped' e && wfE e}
                -> ρ:NameValuation p
                -> σ:{WireValuation p m | freshE e σ}
@@ -682,12 +582,112 @@ wgIncrIsk m e1 k w i e ρ σ σ' σ1 j = case witnessGenE m ρ σ e1 of
                -> σ2:{WireValuation p m | Just σ2 = witnessGenE m ρ σ1 e2}
 
                -> MapGE σ' σ2 @-}
-wgIncrCons :: (Fractional p, Eq p)
-           => Int -> LDSL p Int -> LDSL p Int -> LDSL p Int
+wgEIncrDiv :: (Fractional p, Eq p)
+           => Int -> LDSL p Int -> LDSL p Int -> Int -> Int -> LDSL p Int
            -> NameValuation p -> WireValuation p
 
            -> WireValuation p -> WireValuation p -> WireValuation p
            -> (Int -> Proof)
-wgIncrCons m e1 e2 e ρ σ σ' σ1 σ2 j = case witnessGenE m ρ σ e1 of
+wgEIncrDiv m e1 e2 w i e ρ σ σ' σ1 σ2 j = case witnessGenE m ρ σ e1 of
+  Just _ -> case witnessGenE m ρ σ1 e2 of
+    Just _ -> trivial
+
+
+-- wg(σ, □e1) ≥ wg(σ, e1)
+{-@ wgEIncrUn :: m:Nat
+              -> e1:LDSL p (Btwn 0 m)
+              -> op:UnOp' p
+              -> i:Btwn 0 m
+              -> e:{LDSL p (Btwn 0 m) | e = LUN op e1 i
+                                      && wellTyped' e && wfE e}
+              -> ρ:NameValuation p
+              -> σ:{WireValuation p m | freshE e σ}
+
+              -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e}
+              -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ e1}
+
+              -> MapGE σ' σ1 @-}
+wgEIncrUn :: (Fractional p, Eq p)
+          => Int -> LDSL p Int -> UnOp p -> Int -> LDSL p Int
+          -> NameValuation p -> WireValuation p
+
+          -> WireValuation p -> WireValuation p
+          -> (Int -> Proof)
+wgEIncrUn m e1 op i e ρ σ σ' σ1 j = case witnessGenE m ρ σ e1 of
+  Just _ -> trivial
+
+
+-- wg(σ, e1⮾e2) ≥ wg(wg(σ, e1), e2)
+{-@ wgEIncrBin :: m:Nat
+               -> e1:LDSL p (Btwn 0 m)
+               -> e2:LDSL p (Btwn 0 m)
+               -> op:BinOp' p
+               -> i:Btwn 0 m
+               -> e:{LDSL p (Btwn 0 m) | e = LBIN op e1 e2 i
+                                      && wellTyped' e && wfE e}
+               -> ρ:NameValuation p
+               -> σ:{WireValuation p m | freshE e σ}
+
+               -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ  e}
+               -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ  e1}
+               -> σ2:{WireValuation p m | Just σ2 = witnessGenE m ρ σ1 e2}
+
+               -> MapGE σ' σ2 @-}
+wgEIncrBin :: (Fractional p, Eq p)
+           => Int -> LDSL p Int -> LDSL p Int -> BinOp p -> Int -> LDSL p Int
+           -> NameValuation p -> WireValuation p
+
+           -> WireValuation p -> WireValuation p -> WireValuation p
+           -> (Int -> Proof)
+wgEIncrBin m e1 e2 op i e ρ σ σ' σ1 σ2 j = case witnessGenE m ρ σ e1 of
+  Just _ -> case witnessGenE m ρ σ1 e2 of
+    Just _ -> trivial
+
+
+-- wg(σ, e1==0) ≥ wg(σ, e1)
+{-@ wgEIncrIsk :: m:Nat
+               -> e1:LDSL p (Btwn 0 m) -> k:p
+               -> w:Btwn 0 m -> i:Btwn 0 m
+               -> e:{LDSL p (Btwn 0 m) | e = LEQLC e1 k w i
+                                     && wellTyped' e && wfE e}
+               -> ρ:NameValuation p
+               -> σ:{WireValuation p m | freshE e σ}
+
+               -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ e}
+               -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ e1}
+
+               -> j:{Int | M.member j σ1}
+               -> { M.member j σ' && M.lookup' j σ1 == M.lookup' j σ' } @-}
+-- inlining of the "MapGE" type alias; doesn't seem to work otherwise
+wgEIncrIsk :: (Fractional p, Eq p)
+           => Int -> LDSL p Int -> p -> Int -> Int -> LDSL p Int
+           -> NameValuation p -> WireValuation p
+
+           -> WireValuation p -> WireValuation p
+           -> (Int -> Proof)
+wgEIncrIsk m e1 k w i e ρ σ σ' σ1 j = case witnessGenE m ρ σ e1 of
+  Just _ -> trivial
+
+
+-- wg(σ, e1::e2) ≥ wg(wg(σ, e1), e2)
+{-@ wgEIncrCons :: m:Nat
+                -> e1:LDSL p (Btwn 0 m) -> e2:LDSL p (Btwn 0 m)
+                -> e:{LDSL p (Btwn 0 m) | e = LCONS e1 e2
+                                      && wellTyped' e && wfE e}
+                -> ρ:NameValuation p
+                -> σ:{WireValuation p m | freshE e σ}
+
+                -> σ':{WireValuation p m | Just σ' = witnessGenE m ρ σ  e}
+                -> σ1:{WireValuation p m | Just σ1 = witnessGenE m ρ σ  e1}
+                -> σ2:{WireValuation p m | Just σ2 = witnessGenE m ρ σ1 e2}
+
+                -> MapGE σ' σ2 @-}
+wgEIncrCons :: (Fractional p, Eq p)
+            => Int -> LDSL p Int -> LDSL p Int -> LDSL p Int
+            -> NameValuation p -> WireValuation p
+
+            -> WireValuation p -> WireValuation p -> WireValuation p
+            -> (Int -> Proof)
+wgEIncrCons m e1 e2 e ρ σ σ' σ1 σ2 j = case witnessGenE m ρ σ e1 of
   Just _ -> case witnessGenE m ρ σ1 e2 of
     Just _ -> trivial

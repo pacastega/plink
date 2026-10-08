@@ -62,7 +62,7 @@ wgCompleteCast :: (Fractional p, Ord p)
                -> WireValuation p
 wgCompleteCast m0 e1 e ρ v1 v λ σ m1 e1' λ1 m e' λ' σ1 = σ1
    ? labelTyped e m0 λ m e' λ' -- type(e') = type(e), so e' is also well-typed
-  ?? wgClosed  m ρ σ  e1' σ1   -- wires(e1') are bound in σ1
+  ?? wgEClosed  m ρ σ  e1' σ1  -- wires(e1') are bound in σ1
   ?? evalWireScalar m e1' σ1   -- evalWire(e1,σ1) = σ1[e1]
 
 

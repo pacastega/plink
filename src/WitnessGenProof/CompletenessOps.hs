@@ -70,7 +70,7 @@ wgCompleteUn m0 op e1 e ρ v1 v λ σ m1 e1' λ1 m e' λ' i σ1 =
   in labelType e m0 λ m e' λ' -- type(e') = type(e), so e' is also scalar
   ?? wfUn e1' op i       -- e1' is well-formed and well-typed
 
-  ?? wgClosed  m ρ σ  e1' σ1         -- wires(e1') are bound in σ1
+  ?? wgEClosed  m ρ σ  e1' σ1 -- wires(e1') are bound in σ1
 
   ?? evalWireScalar m e1' σ1 -- evalWire(e1,σ1) = σ1[e1]
   ?? evalWireScalar m e'  σ' -- evalWire(e',σ') = σ'[e']
@@ -129,11 +129,11 @@ wgCompleteBin m0 op e1 e2 e ρ v1 v2 v λ σ m1 e1' λ1 m2 e2' λ2 m e' λ' i σ
   in labelType e m0 λ m e' λ' -- type(e') = type(e), so e' is also scalar
   ?? wfBin e1' e2' op i       -- e1',e2' are well-formed and well-typed
 
-  ?? wgClosed  m ρ σ  e1' σ1         -- wires(e1') are bound in σ1
+  ?? wgEClosed  m ρ σ  e1' σ1        -- wires(e1') are bound in σ1
 
   ?? freshBin2 m ρ e1' e2' op i σ σ1 -- wires(e2') are free  in σ1
   ?? wgKeysSet m ρ σ1 e2' σ2         -- keys(σ2) = keys(σ1) ∪ wires(e1')
-  ?? wgClosed  m ρ σ1 e2' σ2         -- wires(e2') are bound in σ2
+  ?? wgEClosed  m ρ σ1 e2' σ2        -- wires(e2') are bound in σ2
 
   ?? evalWireScalar m e1' σ1 -- evalWire(e1,σ1) = σ1[e1]
   ?? evalWireScalar m e2' σ2 -- evalWire(e2,σ2) = σ2[e2]

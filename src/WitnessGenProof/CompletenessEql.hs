@@ -105,11 +105,11 @@ wgCompleteEql m0 e1 e2 e ρ v1 v2 v λ σ m1 e1' λ1 m2 e2' λ2 m e' λ' d w i �
       wf12 = wfBin e1' e2' SUB d
 
       fresh1 = fresh_sub ?? freshBin1 m e1' e2' SUB d σ
-      σ1_lemma = m_ge_m_sub ?? fresh1 ?? wgLemma m_sub m ρ σ e1'
+      σ1_lemma = m_ge_m_sub ?? fresh1 ?? wgELemma m_sub m ρ σ e1'
       evalWire1 = m_ge_m_sub ?? evalWireLemma m_sub m e1' σ1
 
       fresh2 = wf12 ?? fresh_sub ?? freshBin2 m ρ e1' e2' SUB d σ σ1
-      σ2_lemma = m_ge_m_sub ?? fresh2 ?? wgLemma m_sub m ρ σ1 e2'
+      σ2_lemma = m_ge_m_sub ?? fresh2 ?? wgELemma m_sub m ρ σ1 e2'
       evalWire2 = m_ge_m_sub ?? evalWireLemma m_sub m e2' σ2
 
       d = labelBin m0 e1 e2 λ SUB m1 e1' λ1 m2 e2' λ2 m_sub e'_sub λ_sub
@@ -119,13 +119,13 @@ wgCompleteEql m0 e1 e2 e ρ v1 v2 v λ σ m1 e1' λ1 m2 e2' λ2 m e' λ' d w i �
         ?? σ2_lemma ?? evalWire2
 
         ?? wf_sub
-        ?? wgLemma m_sub m ρ σ e'_sub
+        ?? wgELemma m_sub m ρ σ e'_sub
         ?? evalBinOp e1 e2 SUB ρ v_sub v1 v2
 
         ?? wgCompleteBin m0 SUB e1 e2 e_sub ρ v1 v2 v_sub λ σ
                          m1 e1' λ1 m2 e2' λ2 m_sub e'_sub λ_sub d σ1 σ2
 
-      sub_closed = wgClosed m_sub ρ σ e'_sub σ_sub
+      sub_closed = wgEClosed m_sub ρ σ e'_sub σ_sub
       Just (VF v_sub) = eval e_sub ρ
 
 

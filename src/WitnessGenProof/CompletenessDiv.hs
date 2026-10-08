@@ -81,11 +81,11 @@ wgCompleteDiv m0 e1 e2 e ρ v1 v2 v λ σ m1 e1' λ1 m2 e2' λ2 m e' λ' w i σ1
   ?? labelType e m0 λ m e' λ'  -- type(e') = type(e), so e' is also scalar
   ?? wfDiv e1' e2' w i         -- e1',e2' are well-formed and well-typed
 
-  ?? wgClosed  m ρ σ  e1' σ1         -- wires(e1') are bound in σ1
+  ?? wgEClosed  m ρ σ  e1' σ1       -- wires(e1') are bound in σ1
 
   ?? freshDiv2 m ρ e1' e2' w i σ σ1 -- wires(e2') are free  in σ1
   ?? wgKeysSet m ρ σ1 e2' σ2        -- keys(σ2) = keys(σ1) ∪ wires(e1')
-  ?? wgClosed  m ρ σ1 e2' σ2        -- wires(e2') are bound in σ2
+  ?? wgEClosed  m ρ σ1 e2' σ2       -- wires(e2') are bound in σ2
 
   ?? evalWireScalar m e1' σ1 -- evalWire(e1,σ1) = σ1[e1]
   ?? evalWireScalar m e2' σ2 -- evalWire(e2,σ2) = σ2[e2]
