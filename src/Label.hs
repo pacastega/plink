@@ -58,75 +58,75 @@ type ExtLabelEnv p i = M.Map (DSL p) i
 
 label :: (Num p, Ord p) => DSL p -> Store p -> (Int, LDSL p Int, [LAss p Int])
 label program store = (m, labeledProgram, labeledStore) where
-  (m', labeledStore, λ') = labelAsCSE store 0 M.empty
-  (m, labeledProgram, _λ) = labelCSE' program m' λ'
+  (m', labeledStore, λ') = labelAs_CSE store 0 M.empty
+  (m, labeledProgram, _λ) = labelE_CSE program m' λ'
 
-labelAsCSE :: (Num p, Ord p)
-           => Store p -> Int -> ExtLabelEnv p Int
-           -> (Int, [LAss p Int], ExtLabelEnv p Int)
-labelAsCSE [] nextIndex λ = (nextIndex, [], λ)
-labelAsCSE (def:ss) nextIndex λ =
+labelAs_CSE :: (Num p, Ord p)
+            => Store p -> Int -> ExtLabelEnv p Int
+            -> (Int, [LAss p Int], ExtLabelEnv p Int)
+labelAs_CSE [] nextIndex λ = (nextIndex, [], λ)
+labelAs_CSE (def:ss) nextIndex λ =
   let i = nextIndex
-      (i', def', λ') = labelAsCSE' def i λ
-      (i'', s'', λ'') = labelAsCSE ss i' λ'
+      (i', def', λ') = labelA_CSE def i λ
+      (i'', s'', λ'') = labelAs_CSE ss i' λ'
   in (i'', def' : s'', λ'')
 
-labelAsCSE' :: (Num p, Ord p) => Assertion p -> Int -> ExtLabelEnv p Int
-            -> (Int, LAss p Int, ExtLabelEnv p Int)
-labelAsCSE' assertion nextIndex λ = let i = nextIndex in case assertion of
+labelA_CSE :: (Num p, Ord p) => Assertion p -> Int -> ExtLabelEnv p Int
+           -> (Int, LAss p Int, ExtLabelEnv p Int)
+labelA_CSE assertion nextIndex λ = let i = nextIndex in case assertion of
     NZERO p1  -> (w'+1, LNZERO p1' w', λ')
-      where (w', p1', λ') = labelCSE' p1 i λ
+      where (w', p1', λ') = labelE_CSE p1 i λ
     BOOLEAN p1  -> (i', LBOOLEAN p1', λ')
-      where (i', p1', λ') = labelCSE' p1 i λ
+      where (i', p1', λ') = labelE_CSE p1 i λ
     EQA p1 p2 -> case M.lookup p1 λ of
       Just i1 -> case M.lookup p2 λ of
         Just i2 -> (i, LEQA (PTR τ1 i1) (PTR τ2 i2), λ) -- both are labeled: can't relabel them
           where Just τ1 = inferType p1; Just τ2 = inferType p2
         Nothing -> (i', LEQA (PTR τ1 i1) p2', λ')
-          where (i', p2', λ') = labelCSE' p2 i λ
+          where (i', p2', λ') = labelE_CSE p2 i λ
                 Just τ1 = inferType p1
       Nothing -> case M.lookup p2 λ of
         Just i2 -> (i', LEQA p1' (PTR τ2 i2), λ')
-          where (i', p1', λ') = labelCSE' p1 i λ
+          where (i', p1', λ') = labelE_CSE p1 i λ
                 Just τ2 = inferType p2
         Nothing -> (i'', LEQA p1' p2', λ'')
-          where (i' , p1', λ')  = labelCSE' p1 i  λ
-                (i'', p2', λ'') = labelCSE' p2 i' λ'
+          where (i' , p1', λ')  = labelE_CSE p1 i  λ
+                (i'', p2', λ'') = labelE_CSE p2 i' λ'
 
 
-labelCSE' :: (Num p, Ord p) => DSL p -> Int -> ExtLabelEnv p Int
-          -> (Int, LDSL p Int, ExtLabelEnv p Int)
-labelCSE' p nextIndex λ = case M.lookup p λ of
+labelE_CSE :: (Num p, Ord p) => DSL p -> Int -> ExtLabelEnv p Int
+           -> (Int, LDSL p Int, ExtLabelEnv p Int)
+labelE_CSE p nextIndex λ = case M.lookup p λ of
   Just i  -> let Just τ = inferType p in (nextIndex, PTR τ i, λ)
   Nothing -> let i = nextIndex in case p of
 
     VAR s τ -> (i+1, LVAR s τ i, M.insert p i λ)
     CONST x -> (i+1, LCONST x i, M.insert p i λ)
-    BOOL False -> labelCSE' (CONST zero) nextIndex λ
-    BOOL True  -> labelCSE' (CONST one) nextIndex λ
+    BOOL False -> labelE_CSE (CONST zero) nextIndex λ
+    BOOL True  -> labelE_CSE (CONST one) nextIndex λ
 
     UN op p1 -> case op of
-      BoolToF -> labelCSE' p1 i λ -- noop
-      ISZERO -> labelCSE' (UN (EQLC zero) p1) nextIndex λ
+      BoolToF -> labelE_CSE p1 i λ -- noop
+      ISZERO -> labelE_CSE (UN (EQLC zero) p1) nextIndex λ
       EQLC k -> (w'+1, LEQLC p1' k w' i', M.insert p i' λ')
-        where (i', p1', λ') = labelCSE' p1 i λ; w' = i'+1
+        where (i', p1', λ') = labelE_CSE p1 i λ; w' = i'+1
       _ -> (i'+1, LUN op p1' i', M.insert p i' λ')
-        where (i', p1', λ') = labelCSE' p1 i λ
+        where (i', p1', λ') = labelE_CSE p1 i λ
 
     BIN op p1 p2 -> case op of
       DIV -> (w'+1, LDIV p1' p2' w' i', M.insert p i' λ')
-        where (i'', p1', λ'') = labelCSE' p1 i   λ
-              (i' , p2', λ')  = labelCSE' p2 i'' λ''
+        where (i'', p1', λ'') = labelE_CSE p1 i   λ
+              (i' , p2', λ')  = labelE_CSE p2 i'' λ''
               w' = i'+1
-      EQL -> labelCSE' (UN (EQLC zero) (BIN SUB p1 p2)) nextIndex λ
+      EQL -> labelE_CSE (UN (EQLC zero) (BIN SUB p1 p2)) nextIndex λ
       _ -> (i'+1, LBIN op p1' p2' i', M.insert p i' λ')
-        where (i'', p1', λ'') = labelCSE' p1 i   λ
-              (i' , p2', λ')  = labelCSE' p2 i'' λ''
+        where (i'', p1', λ'') = labelE_CSE p1 i   λ
+              (i' , p2', λ')  = labelE_CSE p2 i'' λ''
 
     NIL τ -> (i, LNIL τ, λ)
     CONS h ts -> (i'', LCONS h' ts', λ'')
-      where (i',  h',  λ')  = labelCSE' h  i  λ
-            (i'', ts', λ'') = labelCSE' ts i' λ'
+      where (i',  h',  λ')  = labelE_CSE h  i  λ
+            (i'', ts', λ'') = labelE_CSE ts i' λ'
 
 #endif
 
