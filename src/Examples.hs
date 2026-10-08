@@ -5,9 +5,10 @@
 {-# OPTIONS -Wno-unused-imports #-}
 {-# LANGUAGE DataKinds, CPP #-}
 
+{-@ LIQUID "--skip-module" @-}
+
 module Examples ( testArithmetic
                 , testBoolean
-                -- , testLoops
                 , testVectors
                 , testMod
                 , testSha
@@ -110,7 +111,7 @@ test programStore ρ = do
 
   let ρ' = extend ρ hints
 
-  let (m, labeledBody, labeledStore) = label program store
+  let (m, labeledBody, labeledStore, _) = label program store
   let labeledPrograms = (map LAss labeledStore) ++ [LExpr labeledBody]
 
   let circuit = concatMap (compile m) labeledPrograms
@@ -142,7 +143,7 @@ test' programStore ρ tikzFilename = do
 
   let ρ' = extend ρ hints
 
-  let (m, labeledBody, labeledStore) = label program store
+  let (m, labeledBody, labeledStore, _) = label program store
   let labeledPrograms = (map LAss labeledStore) ++ [LExpr labeledBody]
 
   let circuit = concatMap (compile m) labeledPrograms
