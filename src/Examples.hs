@@ -120,7 +120,7 @@ test programStore ρ = do
   -- putStrLn $ "Compiled circuit: " ++ show circuit
   putStrLn $ "Compiled circuit has " ++ cyan (show $ length circuit) ++ " constraints"
 
-  case witnessGen m labeledPrograms ρ' of
+  case witnessGen m labeledStore labeledBody ρ' of
     Nothing -> do putStrLn "Witness generation failed"
                   putStrLn $ replicate 80 '='
     Just input -> do
@@ -146,7 +146,7 @@ test' programStore ρ tikzFilename = do
   let labeledPrograms = (map LAss labeledStore) ++ [LExpr labeledBody]
 
   let circuit = concatMap (compile m) labeledPrograms
-  case witnessGen m labeledPrograms ρ' of
+  case witnessGen m labeledStore labeledBody ρ' of
     Nothing -> do putStrLn "Witness generation failed"
                   putStrLn $ replicate 80 '='
     Just input -> do
