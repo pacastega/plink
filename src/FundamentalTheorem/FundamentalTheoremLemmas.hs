@@ -263,7 +263,7 @@ fundamentalThmA2 m0 a ρ m1 m λ0 a' λ σ π γ0 γ h_bool = case a of
     _v2' = case v2 of VF v -> v
 
     {-@ π1 :: Agree λ1 ρ σ @-}
-    π1 x = labelIncrEnv e2 me1 λ1 me2 e2' λ2 x ?? π x
+    π1 x = labelEIncrEnv e2 me1 λ1 me2 e2' λ2 x ?? π x
 
     {-@ h_bool1 :: j:{Btwn 0 me1 | S.member j (elemsSet λ1)
                               && M.lookup j γ1 = Just TBool}
@@ -272,7 +272,7 @@ fundamentalThmA2 m0 a ρ m1 m λ0 a' λ σ π γ0 γ h_bool = case a of
              ?? lookupLemma j γ1         -- lookup γ1 j == Just (γ1[j])
              ?? tyEnvEIncr e2' γ1 γ j    -- γ[j] == γ1[j]
              ?? lookupLemma j γ          -- lookup γ j == Just (γ[j])
-             ?? labelElems e2 me1 λ1 me2 e2' λ
+             ?? labelEElems e2 me1 λ1 me2 e2' λ
              ?? h_bool j
 
 

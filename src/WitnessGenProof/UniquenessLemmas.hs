@@ -26,17 +26,17 @@ import Language.Haskell.Liquid.ProofCombinators
                -> { wfPtrE S.empty e' } @-}
 labelWFPtr :: (Ord p, Fractional p) => DSL p -> Int
            -> Int -> LDSL p Int -> LabelEnv p Int -> Proof
-labelWFPtr e m0 m e' λ' = labelElems e m0 M.empty m e' λ'
+labelWFPtr e m0 m e' λ' = labelEElems e m0 M.empty m e' λ'
 
 
-{-@ labelIncrEnv :: e:TypedDSL p -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
-                 -> m:{Nat | m >= m0} -> e':LDSL p (Btwn 0 m)
-                 -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m,e',λ')}
-                 -> MapGE λ' λ
-                  / [size e] @-}
-labelIncrEnv :: (Ord p, Fractional p) => DSL p -> Int -> LabelEnv p Int
-             -> Int -> LDSL p Int -> LabelEnv p Int -> (String -> Proof)
-labelIncrEnv e m0 λ m e' λ' x = case e of
+{-@ labelEIncrEnv :: e:TypedDSL p -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
+                  -> m:{Nat | m >= m0} -> e':LDSL p (Btwn 0 m)
+                  -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m,e',λ')}
+                  -> MapGE λ' λ
+                   / [size e] @-}
+labelEIncrEnv :: (Ord p, Fractional p) => DSL p -> Int -> LabelEnv p Int
+              -> Int -> LDSL p Int -> LabelEnv p Int -> (String -> Proof)
+labelEIncrEnv e m0 λ m e' λ' x = case e of
   VAR s τ -> case M.lookup s λ of
     Nothing -> lookupLemma x λ -- x ∈ λ by hypothesis, so x ≠ s
     Just _ -> trivial
@@ -44,28 +44,28 @@ labelIncrEnv e m0 λ m e' λ' x = case e of
   BOOL  _ -> trivial
 
   UN op e1 -> case op of
-    BoolToF -> labelIncrEnv e1 m0 λ m1 e1' λ1 x
+    BoolToF -> labelEIncrEnv e1 m0 λ m1 e1' λ1 x
       where (m1,e1',λ1) = labelE e1 m0 λ
-    ISZERO -> labelIncrEnv (UN (EQLC zero) e1) m0 λ m e' λ' x
-    EQLC _ -> labelIncrEnv e1 m0 λ m1 e1' λ1 x
+    ISZERO -> labelEIncrEnv (UN (EQLC zero) e1) m0 λ m e' λ' x
+    EQLC _ -> labelEIncrEnv e1 m0 λ m1 e1' λ1 x
       where (m1,e1',λ1) = labelE e1 m0 λ
-    _ -> labelIncrEnv e1 m0 λ m1 e1' λ1 x
+    _ -> labelEIncrEnv e1 m0 λ m1 e1' λ1 x
       where (m1,e1',λ1) = labelE e1 m0 λ
 
   BIN op e1 e2 -> case op of
-    DIV -> labelIncrEnv e1 m0 λ  m1 e1' λ1 x
-        ?? labelIncrEnv e2 m1 λ1 m2 e2' λ2 x
+    DIV -> labelEIncrEnv e1 m0 λ  m1 e1' λ1 x
+        ?? labelEIncrEnv e2 m1 λ1 m2 e2' λ2 x
       where (m1,e1',λ1) = labelE e1 m0 λ
             (m2,e2',λ2) = labelE e2 m1 λ1
-    EQL -> labelIncrEnv (UN (EQLC zero) (BIN SUB e1 e2)) m0 λ m e' λ' x
-    _ -> labelIncrEnv e1 m0 λ  m1 e1' λ1 x
-      ?? labelIncrEnv e2 m1 λ1 m2 e2' λ2 x
+    EQL -> labelEIncrEnv (UN (EQLC zero) (BIN SUB e1 e2)) m0 λ m e' λ' x
+    _ -> labelEIncrEnv e1 m0 λ  m1 e1' λ1 x
+      ?? labelEIncrEnv e2 m1 λ1 m2 e2' λ2 x
       where (m1,e1',λ1) = labelE e1 m0 λ
             (m2,e2',λ2) = labelE e2 m1 λ1
 
   NIL _ -> trivial
-  CONS e1 e2 -> labelIncrEnv e1 m0 λ  m1 e1' λ1 x
-             ?? labelIncrEnv e2 m1 λ1 m2 e2' λ2 x
+  CONS e1 e2 -> labelEIncrEnv e1 m0 λ  m1 e1' λ1 x
+             ?? labelEIncrEnv e2 m1 λ1 m2 e2' λ2 x
     where (m1,e1',λ1) = labelE e1 m0 λ
           (m2,e2',λ2) = labelE e2 m1 λ1
 
@@ -78,15 +78,15 @@ labelAIncrEnv :: (Ord p, Fractional p) => Assertion p -> Int -> LabelEnv p Int
               -> Int -> LAss p Int -> LabelEnv p Int -> (String -> Proof)
 labelAIncrEnv a m0 λ0 _m a' _λ x = case a of
   NZERO e1 -> case inferType e1 of
-    Just _ -> labelIncrEnv e1 m0 λ0 m e1' λ x where
+    Just _ -> labelEIncrEnv e1 m0 λ0 m e1' λ x where
       (m,e1',λ) = labelE e1 m0 λ0
   BOOLEAN e1 -> case inferType e1 of
-    Just _ -> labelIncrEnv e1 m0 λ0 m e1' λ x where
+    Just _ -> labelEIncrEnv e1 m0 λ0 m e1' λ x where
       (m,e1',λ) = labelE e1 m0 λ0
   EQA e1 e2 -> case inferType e1 of
     Just _ -> case inferType e2 of
-      Just _ -> labelIncrEnv e1 m0 λ0 m1 e1' λ1 x
-             ?? labelIncrEnv e2 m1 λ1 m2 e2' λ2 x where
+      Just _ -> labelEIncrEnv e1 m0 λ0 m1 e1' λ1 x
+             ?? labelEIncrEnv e2 m1 λ1 m2 e2' λ2 x where
          (m1,e1',λ1) = labelE e1 m0 λ0
          (m2,e2',λ2) = labelE e2 m1 λ1
 
@@ -103,16 +103,16 @@ labelAsIncrEnv store m0 λ0 _m store' _λ x = case store of
     (m1,a', λ1) = labelA a m0 λ0
     (m, as',λ)  = labelAs as m1 λ1
 
-{-@ labelElems :: e:TypedDSL p -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
-               -> m:{Nat | m >= m0} -> e':LDSL p (Btwn 0 m)
-               -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m,e',λ')}
-               -> { S.isSubsetOf (elemsSet λ') (S.union (elemsSet λ) (wiresE e'))
-                    && S.isSubsetOf (elemsSet λ) (elemsSet λ')
-                    && wfPtrE (elemsSet λ) e' }
-                / [size e] @-}
-labelElems :: (Ord p, Fractional p) => DSL p -> Int -> LabelEnv p Int
-           -> Int -> LDSL p Int -> LabelEnv p Int -> Proof
-labelElems e m0 λ m e' λ' = case e of
+{-@ labelEElems :: e:TypedDSL p -> m0:Nat -> λ:LabelEnv p (Btwn 0 m0)
+                -> m:{Nat | m >= m0} -> e':LDSL p (Btwn 0 m)
+                -> λ':{LabelEnv p (Btwn 0 m) | labelE e m0 λ = (m,e',λ')}
+                -> { S.isSubsetOf (elemsSet λ') (S.union (elemsSet λ) (wiresE e'))
+                     && S.isSubsetOf (elemsSet λ) (elemsSet λ')
+                     && wfPtrE (elemsSet λ) e' }
+                 / [size e] @-}
+labelEElems :: (Ord p, Fractional p) => DSL p -> Int -> LabelEnv p Int
+            -> Int -> LDSL p Int -> LabelEnv p Int -> Proof
+labelEElems e m0 λ m e' λ' = case e of
   VAR s τ -> case M.lookup s λ of
     Nothing -> trivial
     Just j -> elementLemma2 s j λ -- ? liquidAssert (S.member j (elemsSet λ))
@@ -120,25 +120,25 @@ labelElems e m0 λ m e' λ' = case e of
   BOOL  _ -> trivial
 
   UN op e1 -> case op of
-    BoolToF -> labelElems e1 m0 λ m1 e1' λ1
+    BoolToF -> labelEElems e1 m0 λ m1 e1' λ1
       where (m1,e1',λ1) = labelE e1 m0 λ
-    ISZERO -> labelElems (UN (EQLC zero) e1) m0 λ m e' λ'
-    EQLC _ -> labelElems e1 m0 λ m1 e1' λ1
+    ISZERO -> labelEElems (UN (EQLC zero) e1) m0 λ m e' λ'
+    EQLC _ -> labelEElems e1 m0 λ m1 e1' λ1
       where (m1,e1',λ1) = labelE e1 m0 λ
-    _ -> labelElems e1 m0 λ m1 e1' λ1
+    _ -> labelEElems e1 m0 λ m1 e1' λ1
       where (m1,e1',λ1) = labelE e1 m0 λ
 
   BIN op e1 e2 -> case op of
-    DIV -> labelElems e1 m0 λ  m1 e1' λ1
-        ?? labelElems e2 m1 λ1 m2 e2' λ2
+    DIV -> labelEElems e1 m0 λ  m1 e1' λ1
+        ?? labelEElems e2 m1 λ1 m2 e2' λ2
         ?? wfPtrEIncr (elemsSet λ1)
                       (elemsSet λ `S.union` wiresE e1')
                       e2'
       where (m1,e1',λ1) = labelE e1 m0 λ
             (m2,e2',λ2) = labelE e2 m1 λ1
-    EQL -> labelElems (UN (EQLC zero) (BIN SUB e1 e2)) m0 λ m e' λ'
-    _ -> labelElems e1 m0 λ  m1 e1' λ1
-      ?? labelElems e2 m1 λ1 m2 e2' λ2
+    EQL -> labelEElems (UN (EQLC zero) (BIN SUB e1 e2)) m0 λ m e' λ'
+    _ -> labelEElems e1 m0 λ  m1 e1' λ1
+      ?? labelEElems e2 m1 λ1 m2 e2' λ2
       ?? wfPtrEIncr (elemsSet λ1)
                     (elemsSet λ `S.union` wiresE e1')
                     e2'
@@ -146,8 +146,8 @@ labelElems e m0 λ m e' λ' = case e of
             (m2,e2',λ2) = labelE e2 m1 λ1
 
   NIL _ -> trivial
-  CONS e1 e2 -> labelElems e1 m0 λ  m1 e1' λ1
-             ?? labelElems e2 m1 λ1 m2 e2' λ2
+  CONS e1 e2 -> labelEElems e1 m0 λ  m1 e1' λ1
+             ?? labelEElems e2 m1 λ1 m2 e2' λ2
              ?? wfPtrEIncr (elemsSet λ1)
                            (elemsSet λ `S.union` wiresE e1')
                            e2'
@@ -164,15 +164,15 @@ labelAElems :: (Ord p, Fractional p) => Assertion p -> Int -> LabelEnv p Int
             -> Int -> LAss p Int -> LabelEnv p Int -> Proof
 labelAElems a m0 λ m a' λ' = case a of
   NZERO e1 -> case inferType e1 of
-    Just _ -> labelElems e1 m0 λ m1 e1' λ1 where
+    Just _ -> labelEElems e1 m0 λ m1 e1' λ1 where
       (m1,e1',λ1) = labelE e1 m0 λ
   BOOLEAN e1 -> case inferType e1 of
-    Just _ -> labelElems e1 m0 λ m1 e1' λ1 where
+    Just _ -> labelEElems e1 m0 λ m1 e1' λ1 where
       (m1,e1',λ1) = labelE e1 m0 λ
   EQA e1 e2 -> case inferType e1 of
     Just _ -> case inferType e2 of
-      Just _ -> labelElems e1 m0 λ  m1 e1' λ1
-             ?? labelElems e2 m1 λ1 m2 e2' λ2
+      Just _ -> labelEElems e1 m0 λ  m1 e1' λ1
+             ?? labelEElems e2 m1 λ1 m2 e2' λ2
              ?? wfPtrEIncr (elemsSet λ1) (S.union (elemsSet λ) (wiresE e1')) e2'
         where
         (m1,e1',λ1) = labelE e1 m0 λ

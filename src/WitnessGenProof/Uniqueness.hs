@@ -67,7 +67,7 @@ evalWireUnique2 m0 e ρ _ m e' λ' σ π v γ' =
   {-@ h_bool :: j:{Btwn 0 m | S.member j (elemsSet λ')
                            && M.lookup j γ' = Just TBool}
                    -> { boolean (M.lookup' j σ) } @-}
-  h_bool j = labelElems e m0 λ m e' λ'
+  h_bool j = labelEElems e m0 λ m e' λ'
           ?? liquidAssert (S.isSubsetOf (elemsSet λ') (S.union (elemsSet λ) (wiresE e')))
           ?? booleanProofE m σ e' M.MTip γ' j
 
@@ -199,7 +199,7 @@ auxBin m0 m' op e1 e2 e ρ λ m e' λ' τ σ π v γ γ' h_boolean = ()
 
         {-@ π1 :: Agree λ1 ρ σ @-}
         π1 :: String -> Proof
-        π1 x = labelIncrEnv e2 m1 λ1 m2 e2' λ2 x
+        π1 x = labelEIncrEnv e2 m1 λ1 m2 e2' λ2 x
             ?? λ'_λ2 ?? π2 x
 
         {-@ π2 :: Agree λ' ρ σ @-}
@@ -282,7 +282,7 @@ auxCons m0 m' e1 e2 e ρ λ m e' λ' τ σ π v γ γ' h_boolean = ()
 
         {-@ π1 :: Agree λ1 ρ σ @-}
         π1 :: String -> Proof
-        π1 x = labelIncrEnv e2 m1 λ1 m2 e2' λ2 x
+        π1 x = labelEIncrEnv e2 m1 λ1 m2 e2' λ2 x
             ?? λ'_λ2 ?? π2 x
 
         {-@ π2 :: Agree λ' ρ σ @-}
