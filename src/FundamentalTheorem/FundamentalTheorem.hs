@@ -239,8 +239,7 @@ fundamentalThm2 e st v ρ m e'' st'' λ σ π γ = h_holds ? h_eval where
 
   wtE = labelTyped e m1 λ1 m2 e' λ2
 
-  γ1 = --tyEnvPr1 m0 m1 m2 e' st' γ0 γ ?? --TODO: maybe remove this
-       case tyEnvAs st' γ0 of Just g -> g
+  γ1 = case tyEnvAs st' γ0 of Just g -> g
   γ2 = γ
 
   {-@ π1 :: Agree λ1 ρ σ @-}
